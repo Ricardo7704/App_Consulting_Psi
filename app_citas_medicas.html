@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Reservas Clínicas en Psicología</title>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #c5e9a0 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f5f5f5;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: #f5f5f5;
+            color: #666;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            background: white;
+            color: #66bb6a;
+            border-bottom: 3px solid #66bb6a;
+        }
+
+        .tab-button:hover {
+            background: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            color: #1a237e;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        select:focus {
+            outline: none;
+            border-color: #66bb6a;
+            box-shadow: 0 0 0 3px rgba(102, 187, 106, 0.1);
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
+        .icon-input {
+            position: relative;
+        }
+
+        .icon-input::before {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+        }
+
+        .form-group.rut .icon-input::before {
+            content: "🆔";
+        }
+
+        .form-group.edad .icon-input::before {
+            content: "📅";
+        }
+
+        .form-group.genero .icon-input::before {
+            content: "👤";
+        }
+
+        .form-group.celular .icon-input::before {
+            content: "📱";
+        }
+
+        .form-group.especialista .icon-input::before {
+            content: "👨‍⚕️";
+        }
+
+        .icon-input input,
+        .icon-input select {
+            padding-left: 40px;
+        }
+
+        .phone-prefix {
+            position: relative;
+        }
+
+        .phone-prefix::before {
+            content: "+56";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-weight: 600;
+            color: #1a237e;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .phone-prefix input {
+            padding-left: 50px !important;
+        }
+
+        .schedules-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #1a237e;
+            margin: 30px 0 15px;
+        }
+
+        .schedule-grid {
+            background: #f5f5f5;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+        }
+
+        .schedule-table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 100%;
+        }
+
+        .schedule-table th {
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 600;
+            border: 1px solid #66bb6a;
+        }
+
+        .schedule-table td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        .schedule-table .time-header {
+            background: #e8f5e9;
+            font-weight: 600;
+            color: #1a237e;
+            width: 60px;
+        }
+
+        .time-slot {
+            padding: 10px 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            background: white;
+            transition: all 0.3s;
+            user-select: none;
+            display: inline-block;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .time-slot:hover {
+            border-color: #66bb6a;
+            background: #f0f7ee;
+            font-weight: 600;
+        }
+
+        .time-slot.selected {
+            background: #66bb6a;
+            color: white;
+            border-color: #66bb6a;
+            font-weight: 600;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 30px;
+            background: linear-gradient(135deg, #66bb6a 0%, #81c784 100%);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 187, 106, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .success-message {
+            display: none;
+            padding: 15px;
+            background: #c8e6c9;
+            color: #1b5e20;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 4px solid #66bb6a;
+        }
+
+        .error-message {
+            display: none;
+            padding: 15px;
+            background: #ffcdd2;
+            color: #b71c1c;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            text-align: center;
+            border-left: 4px solid #f44336;
+        }
+
+        .selected-info {
+            display: none;
+            padding: 12px;
+            background: #e8f5e9;
+            border-left: 4px solid #66bb6a;
+            border-radius: 4px;
+            margin: 20px 0;
+            font-size: 13px;
+            color: #1b5e20;
+        }
+
+        .time-slot.disabled {
+            background: #ddd;
+            color: #999;
+            border-color: #ddd;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .time-slot.disabled:hover {
+            background: #ddd;
+            border-color: #ddd;
+        }
+
+        /* ========== OPTIMIZACIÓN MÓVIL ========== */
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+                min-height: auto;
+            }
+
+            .container {
+                max-width: 100%;
+                border-radius: 12px;
+            }
+
+            .header {
+                font-size: 20px;
+                padding: 15px 10px;
+            }
+
+            .tab-button {
+                font-size: 12px;
+                padding: 12px 8px;
+            }
+
+            .form-content {
+                padding: 20px;
+            }
+
+            label {
+                font-size: 13px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            input[type="email"],
+            select {
+                padding: 14px 12px;
+                font-size: 16px; /* Importante para evitar zoom en iOS */
+                min-height: 44px; /* Altura mínima para tocar en móvil */
+            }
+
+            .icon-input input,
+            .icon-input select {
+                padding-left: 45px;
+            }
+
+            .schedule-table {
+                font-size: 11px;
+            }
+
+            .schedule-table th {
+                padding: 8px 4px;
+                font-size: 11px;
+            }
+
+            .schedule-table td {
+                padding: 6px 2px;
+            }
+
+            .schedule-table .time-header {
+                width: 50px;
+                font-size: 11px;
+            }
+
+            .time-slot {
+                padding: 8px 4px;
+                font-size: 11px;
+                min-height: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .schedule-grid {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch; /* Smooth scroll en iOS */
+                padding: 12px 8px;
+            }
+
+            .submit-btn {
+                padding: 16px;
+                font-size: 15px;
+                margin-top: 20px;
+                min-height: 48px; /* Altura mínima para tocar */
+            }
+
+            .selected-info {
+                font-size: 12px;
+                padding: 10px;
+            }
+
+            .form-group {
+                margin-bottom: 16px;
+            }
+
+            .schedules-title {
+                font-size: 13px;
+                margin: 20px 0 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 8px;
+            }
+
+            .container {
+                max-width: 100%;
+            }
+
+            .header {
+                font-size: 18px;
+                padding: 12px 8px;
+            }
+
+            .tab-button {
+                font-size: 11px;
+                padding: 10px 6px;
+                font-weight: 500;
+            }
+
+            .form-content {
+                padding: 15px;
+            }
+
+            label {
+                font-size: 12px;
+                margin-bottom: 6px;
+            }
+
+            .form-group {
+                margin-bottom: 14px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            input[type="email"],
+            select {
+                padding: 14px 12px;
+                font-size: 16px; /* Evita zoom en iOS */
+                border-radius: 6px;
+                min-height: 44px;
+            }
+
+            .icon-input::before {
+                font-size: 16px;
+                left: 10px;
+            }
+
+            .icon-input input,
+            .icon-input select {
+                padding-left: 40px;
+            }
+
+            .phone-prefix::before {
+                font-size: 13px;
+                left: 10px;
+            }
+
+            .phone-prefix input {
+                padding-left: 45px !important;
+            }
+
+            .schedule-grid {
+                padding: 10px 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .schedule-table {
+                font-size: 10px;
+                border-collapse: separate;
+                border-spacing: 2px;
+            }
+
+            .schedule-table th {
+                padding: 6px 2px;
+                font-size: 10px;
+                font-weight: 500;
+            }
+
+            .schedule-table td {
+                padding: 4px 2px;
+            }
+
+            .schedule-table .time-header {
+                width: 45px;
+                font-size: 10px;
+                padding: 4px 2px;
+            }
+
+            .time-slot {
+                padding: 6px 2px;
+                font-size: 10px;
+                min-height: 38px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 3px;
+            }
+
+            .time-slot:hover {
+                border-color: #66bb6a;
+                background: #f0f7ee;
+            }
+
+            .submit-btn {
+                padding: 15px;
+                font-size: 14px;
+                margin-top: 15px;
+                min-height: 48px;
+                border-radius: 6px;
+            }
+
+            .selected-info {
+                font-size: 11px;
+                padding: 10px;
+                margin: 15px 0;
+            }
+
+            .success-message,
+            .error-message {
+                font-size: 12px;
+                padding: 12px;
+                margin-bottom: 15px;
+            }
+
+            .schedules-title {
+                font-size: 12px;
+                margin: 15px 0 10px;
+            }
+
+            /* Modal optimizado para móvil */
+            #modalAnulacion {
+                padding: 20px !important;
+            }
+
+            #modalAnulacion > div {
+                width: 95% !important;
+                max-width: 100% !important;
+                border-radius: 12px !important;
+                padding: 20px !important;
+            }
+
+            #modalAnulacion h3 {
+                font-size: 16px !important;
+                margin-bottom: 15px !important;
+            }
+
+            #modalAnulacion table {
+                font-size: 12px !important;
+            }
+
+            #modalAnulacion button {
+                min-height: 44px;
+                font-size: 14px;
+                padding: 12px !important;
+                margin-top: 10px !important;
+                width: 100%;
+            }
+        }
+
+        /* Para pantallas muy pequeñas (menos de 360px) */
+        @media (max-width: 360px) {
+            .header {
+                font-size: 16px;
+                padding: 10px 6px;
+            }
+
+            .schedule-table {
+                font-size: 9px;
+            }
+
+            .time-slot {
+                font-size: 9px;
+                min-height: 35px;
+            }
+
+            input[type="text"],
+            input[type="number"],
+            input[type="email"],
+            select {
+                font-size: 15px;
+                padding: 12px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">Portal de Reservas Clínicas en Psicología</div>
+
+        <div class="tabs">
+            <button class="tab-button active" onclick="cambiarTab('agendar')">📅 Agendar Cita</button>
+            <button class="tab-button" onclick="cambiarTab('anular')">❌ Anular Cita</button>
+        </div>
+
+        <div class="form-content">
+            <!-- TAB 1: AGENDAR CITA -->
+            <div id="tab-agendar" class="tab-content active">
+            <div class="success-message" id="successMessage">
+                ✓ Cita agendada exitosamente. Se ha enviado un correo de confirmación.
+            </div>
+            <div class="error-message" id="errorMessage">
+                ✗ Error al agendar la cita. Por favor, intenta de nuevo.
+            </div>
+
+            <form id="appointmentForm">
+                <div class="form-group rut">
+                    <label for="rut">RUT:</label>
+                    <div class="icon-input">
+                        <input type="text" id="rut" name="rut" placeholder="Ingresa tu RUT" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nombre">Nombre Completo:</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Tu nombre completo" required>
+                </div>
+
+                <div class="form-group edad">
+                    <label for="edad">Edad:</label>
+                    <div class="icon-input">
+                        <input type="number" id="edad" name="edad" placeholder="Tu edad" min="1" max="120" required>
+                    </div>
+                </div>
+
+                <div class="form-group genero">
+                    <label for="genero">Género:</label>
+                    <div class="icon-input">
+                        <select id="genero" name="genero" required>
+                            <option value="">Selecciona</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                            <option value="Otro">Otro</option>
+                            <option value="Prefiero no decir">Prefiero no decir</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group especialista">
+                    <label for="especialista">Especialista:</label>
+                    <div class="icon-input">
+                        <select id="especialista" name="especialista" required>
+                            <option value="Psicóloga Virmela Hamuy Bernal" selected>Psicóloga Virmela Hamuy Bernal</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group celular">
+                    <label for="celular">Celular:</label>
+                    <div class="icon-input phone-prefix">
+                        <input type="tel" id="celular" name="celular" placeholder="9 12345678" maxlength="9" pattern="[0-9]{9}" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Correo Electrónico:</label>
+                    <input type="email" id="email" name="email" placeholder="Tu correo electrónico" required>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 10px;">
+                    <button type="button" id="btnSemanaAnterior" class="nav-btn" style="background: #e8f5e9; border: 1px solid #66bb6a; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; color: #66bb6a; font-size: 13px; flex-shrink: 0;">← Anterior</button>
+                    <h3 style="color: #1a237e; margin: 0; font-size: 14px;" id="semanaLabel">Semana del 24 - 28</h3>
+                    <button type="button" id="btnSemanaSiguiente" class="nav-btn" style="background: #66bb6a; border: 1px solid #66bb6a; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: 600; color: white; font-size: 13px; flex-shrink: 0;">Siguiente →</button>
+                </div>
+
+                <div class="schedules-title">Selecciona el horario de tu cita:</div>
+                <div class="schedule-grid">
+                    <table class="schedule-table" id="scheduleTable">
+                        <thead id="tableHeader">
+                            <tr>
+                                <th>Hora</th>
+                                <!-- Los encabezados se generan dinámicamente con JavaScript -->
+                            </tr>
+                        </thead>
+                        <tbody id="timeSlots"></tbody>
+                    </table>
+                </div>
+
+                <div class="selected-info" id="selectedInfo">
+                    Cita seleccionada: <span id="selectedDate"></span> a las <span id="selectedTime"></span>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Aceptar</button>
+            </form>
+            </div>
+
+            <!-- TAB 2: ANULAR CITA -->
+            <div id="tab-anular" class="tab-content">
+                <div class="success-message" id="successMessageCancel">
+                    ✓ Cita anulada exitosamente. El horario está disponible nuevamente.
+                </div>
+                <div class="error-message" id="errorMessageCancel">
+                    ✗ Error al anular la cita. Por favor, intenta de nuevo.
+                </div>
+
+                <form id="cancelForm">
+                    <h3 style="color: #1a237e; margin-bottom: 20px;">Anular una Cita</h3>
+
+                    <div class="form-group">
+                        <label for="codigoAnulacion">Código de Anulación:</label>
+                        <input type="text" id="codigoAnulacion" name="codigoAnulacion" placeholder="Ej: C1234567890ABC" required>
+                        <p style="font-size: 12px; color: #666; margin-top: 5px;">
+                            Ingresa el código que recibiste en el correo de confirmación
+                        </p>
+                    </div>
+
+                    <button type="submit" class="submit-btn">Buscar Cita</button>
+                </form>
+            </div>
+
+            <!-- Modal de confirmación de anulación -->
+            <div id="modalAnulacion" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 30px; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <h3 style="color: #1a237e; margin-bottom: 20px; text-align: center;">Datos de la Cita</h3>
+
+                    <div id="datosClienteAnulacion" style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                        <!-- Los datos se llenarán con JavaScript -->
+                    </div>
+
+                    <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="color: #856404; margin: 0; font-size: 14px;">
+                            <strong>⚠️ Advertencia:</strong><br>
+                            ¿Estás seguro de que deseas anular esta cita? Esta acción no se puede deshacer.
+                        </p>
+                    </div>
+
+                    <div style="display: flex; gap: 10px;">
+                        <button id="btnCancelarModal" class="submit-btn" style="flex: 1; background: #ccc; color: #333;">Cancelar</button>
+                        <button id="btnConfirmarAnulacion" class="submit-btn" style="flex: 1; background: #d32f2f; color: white;">Confirmar Anulación</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inicializar EmailJS
+        emailjs.init('YOUR_PUBLIC_KEY'); // Se configurará sin clave
+
+        // LIMPIAR localStorage al cargar la página para sincronizar con BD
+        localStorage.removeItem('citasAgendadas');
+
+        // Generar horarios de 09:00 a 18:00
+        const hours = [];
+        for (let i = 9; i <= 18; i++) {
+            hours.push(String(i).padStart(2, '0') + ':00');
+        }
+
+        let days = [];
+        let selectedDay = null;
+        let selectedTime = null;
+        let semanaOffset = 0; // 0 = semana actual, 1 = próxima semana, -1 = semana anterior
+
+        // Inicializar como array vacío (se rellenará desde servidor)
+        let citasAgendadas = [];
+
+        // Función para cargar citas desde la BD al iniciar
+        async function cargarCitasDelServidor() {
+            try {
+                const response = await fetch('http://localhost:5000/obtener_citas');
+                const data = await response.json();
+
+                if (data.success && data.citas) {
+                    // Convertir citas de BD al formato de localStorage
+                    const citasDelServidor = data.citas.map(cita => ({
+                        day: cita.day,
+                        time: cita.time,
+                        rut: cita.rut,
+                        nombre: cita.nombre,
+                        email: cita.email
+                    }));
+
+                    // Combinar con citas locales (las del servidor tienen prioridad)
+                    const citasFinales = [...citasDelServidor];
+
+                    // Actualizar localStorage
+                    localStorage.setItem('citasAgendadas', JSON.stringify(citasFinales));
+                    citasAgendadas = citasFinales;
+
+                    console.log(`✅ ${data.cantidad} citas cargadas desde el servidor`);
+                }
+            } catch (error) {
+                console.warn('⚠️  No se pudieron cargar citas del servidor:', error);
+            }
+        }
+
+        // Función para obtener los próximos 5 días hábiles (lunes-viernes) comenzando desde hoy
+        function generarDiasConNumeros(offset = 0) {
+            const hoy = new Date();
+            const diaSemana = hoy.getDay(); // 0 = domingo, 1 = lunes, 5 = viernes, 6 = sábado
+
+            let fechaInicio = new Date(hoy);
+
+            // Si offset es 0, comenzar desde hoy (si es día hábil) o próximo lunes
+            if (offset === 0) {
+                if (diaSemana === 0) {
+                    // Domingo: ir al próximo lunes
+                    fechaInicio.setDate(hoy.getDate() + 1);
+                } else if (diaSemana === 6) {
+                    // Sábado: ir al próximo lunes
+                    fechaInicio.setDate(hoy.getDate() + 2);
+                }
+                // Si es lunes-viernes, mantener fecha actual
+            } else {
+                // Para offset > 0, ir al lunes de la semana indicada
+                if (diaSemana >= 1 && diaSemana <= 5) {
+                    fechaInicio.setDate(hoy.getDate() - (diaSemana - 1));
+                } else if (diaSemana === 6) {
+                    fechaInicio.setDate(hoy.getDate() + 2);
+                } else {
+                    fechaInicio.setDate(hoy.getDate() + 1);
+                }
+            }
+
+            // Milisegundos por día
+            const msPerDay = 24 * 60 * 60 * 1000;
+
+            // Aplicar offset de semanas
+            const fechaBaseTimestamp = fechaInicio.getTime() + (offset * 7 * msPerDay);
+
+            const diasSemana = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+            const diasConNumeros = [];
+
+            // Generar exactamente 5 días hábiles (lunes-viernes)
+            let diasAgregados = 0;
+            let diaActual = 0;
+
+            while (diasAgregados < 5) {
+                const timestamp = fechaBaseTimestamp + (diaActual * msPerDay);
+                const fecha = new Date(timestamp);
+                const diaSemanaActual = fecha.getDay();
+
+                // Solo agregar si es día hábil (lunes=1 a viernes=5)
+                if (diaSemanaActual >= 1 && diaSemanaActual <= 5) {
+                    const nombreDia = diasSemana[diaSemanaActual];
+                    const numeroDia = fecha.getDate();
+                    diasConNumeros.push(`${nombreDia} ${numeroDia}`);
+                    diasAgregados++;
+                }
+
+                diaActual++;
+            }
+
+            return diasConNumeros;
+        }
+
+        // Función para actualizar la etiqueta de la semana y los botones
+        function actualizarEtiquetaSemana() {
+            const dias = generarDiasConNumeros(semanaOffset);
+            const primerDia = dias[0].split(' ')[1];
+            const ultimoDia = dias[4].split(' ')[1];
+            document.getElementById('semanaLabel').textContent = `Semana del ${primerDia} - ${ultimoDia}`;
+
+            // Deshabilitar botón "Anterior" si estamos en la semana actual
+            const btnAnterior = document.getElementById('btnSemanaAnterior');
+            if (semanaOffset === 0) {
+                btnAnterior.disabled = true;
+                btnAnterior.style.opacity = '0.5';
+                btnAnterior.style.cursor = 'not-allowed';
+            } else {
+                btnAnterior.disabled = false;
+                btnAnterior.style.opacity = '1';
+                btnAnterior.style.cursor = 'pointer';
+            }
+        }
+
+        // Función para actualizar el calendario
+        function actualizarCalendario() {
+            days = generarDiasConNumeros(semanaOffset);
+            generarEncabezados();
+            crearSlotsDeHorario();
+            actualizarEtiquetaSemana();
+        }
+
+        // Inicializar días con números reales
+        days = generarDiasConNumeros();
+
+        // Función para generar encabezados de la tabla dinámicamente
+        function generarEncabezados() {
+            const headerRow = document.querySelector('#tableHeader tr');
+
+            // Eliminar todos los <th> excepto el primero (Hora)
+            while (headerRow.children.length > 1) {
+                headerRow.removeChild(headerRow.lastChild);
+            }
+
+            // Agregar exactamente 5 encabezados para los días
+            days.forEach(day => {
+                const th = document.createElement('th');
+                th.textContent = day;
+                headerRow.appendChild(th);
+            });
+        }
+
+        // Generar encabezados al cargar la página
+        generarEncabezados();
+
+        // Función para cambiar entre pestañas
+        function cambiarTab(tab) {
+            // Ocultar todos los tabs
+            document.querySelectorAll('.tab-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(el => {
+                el.classList.remove('active');
+            });
+
+            // Mostrar el tab seleccionado
+            document.getElementById('tab-' + tab).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Función para generar código único
+        function generarCodigoAnulacion() {
+            const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let codigo = 'C'; // Comienza con C de "Cancelación"
+            for (let i = 0; i < 13; i++) {
+                codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+            }
+            return codigo;
+        }
+
+        // Función para calcular el dígito verificador del RUT chileno
+        function calcularDVRUT(rut) {
+            let suma = 0;
+            let multiplicador = 2;
+            rut = rut.toString();
+
+            for (let i = rut.length - 1; i >= 0; i--) {
+                suma += parseInt(rut.charAt(i)) * multiplicador;
+                multiplicador++;
+                if (multiplicador > 7) multiplicador = 2;
+            }
+
+            let dv = 11 - (suma % 11);
+            if (dv === 11) return 0;
+            if (dv === 10) return 'K';
+            return dv;
+        }
+
+        // Función para validar RUT chileno
+        function validarRUT(rut) {
+            rut = rut.toString().trim();
+            rut = rut.replace(/\./g, '').replace('-', '');
+
+            if (rut.length < 8 || rut.length > 9) return false;
+
+            const rutNumeros = rut.slice(0, -1);
+            const dvIngresado = rut.slice(-1).toUpperCase();
+            const dvCalculado = calcularDVRUT(rutNumeros);
+
+            return dvIngresado === dvCalculado.toString();
+        }
+
+        // Función para formatear RUT
+        function formatearRUT(rut) {
+            rut = rut.toString().trim();
+            rut = rut.replace(/\./g, '').replace('-', '').toUpperCase();
+
+            if (rut.length === 0) return '';
+            if (rut.length <= 1) return rut;
+
+            const rutSinDV = rut.slice(0, -1);
+            const dv = rut.slice(-1);
+
+            let rutFormateado = '';
+            const rutInvertido = rutSinDV.split('').reverse().join('');
+
+            for (let i = 0; i < rutInvertido.length; i++) {
+                if (i > 0 && i % 3 === 0) {
+                    rutFormateado = '.' + rutFormateado;
+                }
+                rutFormateado = rutInvertido.charAt(i) + rutFormateado;
+            }
+
+            return rutFormateado + '-' + dv;
+        }
+
+        // Evento para formatear RUT mientras se escribe
+        document.getElementById('rut').addEventListener('input', function(e) {
+            let valor = e.target.value.trim();
+            valor = valor.replace(/\./g, '').replace('-', '').toUpperCase();
+
+            if (valor.length > 9) {
+                valor = valor.slice(0, 9);
+            }
+
+            if (valor.length > 0) {
+                e.target.value = formatearRUT(valor);
+            }
+        });
+
+        // Evento para validar RUT cuando pierde el foco
+        document.getElementById('rut').addEventListener('blur', function(e) {
+            const rut = e.target.value.trim();
+            if (rut.length > 0 && !validarRUT(rut)) {
+                showError('RUT inválido. Verifica el número y el dígito verificador.');
+                e.target.style.borderColor = '#f44336';
+            } else if (rut.length > 0) {
+                e.target.style.borderColor = '#66bb6a';
+            }
+        });
+
+        document.getElementById('rut').addEventListener('focus', function(e) {
+            e.target.style.borderColor = '#ddd';
+        });
+
+        // Función para limpiar RUT (remover formato)
+        function limpiarRUT(rut) {
+            return rut.replace(/\./g, '').replace('-', '').toUpperCase();
+        }
+
+        // Función para verificar si una cita está agendada
+        function citaAgendada(day, time) {
+            return citasAgendadas.some(cita => cita.day === day && cita.time === time);
+        }
+
+        // Crear slots de tiempo en tabla
+        function crearSlotsDeHorario() {
+            const timeSlotsContainer = document.getElementById('timeSlots');
+            timeSlotsContainer.innerHTML = ''; // Limpiar
+
+            // Obtener fecha y hora actual
+            const ahora = new Date();
+            const horaActual = ahora.getHours();
+            const diaActual = ahora.getDate();
+
+            hours.forEach(hour => {
+                const row = document.createElement('tr');
+
+                // Celda de hora
+                const timeCell = document.createElement('td');
+                timeCell.className = 'time-header';
+                timeCell.textContent = hour;
+                row.appendChild(timeCell);
+
+                // Celdas para cada día
+                days.forEach(day => {
+                    const slot = document.createElement('td');
+                    const slotBtn = document.createElement('div');
+                    slotBtn.className = 'time-slot';
+                    slotBtn.textContent = hour;
+                    slotBtn.dataset.day = day;
+                    slotBtn.dataset.time = hour;
+
+                    // Extraer número del día (ej: "Lunes 25" -> 25)
+                    const numeroDia = parseInt(day.split(' ')[1]);
+
+                    // Convertir hora a número (ej: "14:00" -> 14)
+                    const horaSlot = parseInt(hour.split(':')[0]);
+
+                    // Verificar si la hora ya pasó en el día actual
+                    const yaPassoLaHora = (numeroDia === diaActual && horaSlot <= horaActual);
+
+                    // Verificar si la cita ya está agendada
+                    if (citaAgendada(day, hour) || yaPassoLaHora) {
+                        slotBtn.classList.add('disabled');
+                        slotBtn.style.pointerEvents = 'none';
+                    } else {
+                        slotBtn.addEventListener('click', function() {
+                            // Remover selección anterior
+                            document.querySelectorAll('.time-slot').forEach(s => {
+                                if (!s.classList.contains('disabled')) {
+                                    s.classList.remove('selected');
+                                }
+                            });
+                            // Agregar selección nueva
+                            this.classList.add('selected');
+                            selectedDay = day;
+                            selectedTime = hour;
+
+                            // Mostrar información
+                            document.getElementById('selectedInfo').style.display = 'block';
+                            document.getElementById('selectedDate').textContent = day;
+                            document.getElementById('selectedTime').textContent = hour;
+                        });
+                    }
+                    slot.appendChild(slotBtn);
+                    row.appendChild(slot);
+                });
+
+                timeSlotsContainer.appendChild(row);
+            });
+        }
+
+        // Cargar citas del servidor y luego inicializar el calendario
+        cargarCitasDelServidor().then(() => {
+            // Crear slots iniciales DESPUÉS de cargar citas
+            crearSlotsDeHorario();
+            actualizarEtiquetaSemana();
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('appointmentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            // Validar que se haya seleccionado una cita
+            if (!selectedDay || !selectedTime) {
+                showError('Por favor selecciona un horario');
+                return;
+            }
+
+            const rutFormateado = document.getElementById('rut').value;
+            const rut = limpiarRUT(rutFormateado);
+
+            // Validar RUT
+            if (!validarRUT(rut)) {
+                showError('RUT inválido. Por favor verifica el número y dígito verificador.');
+                return;
+            }
+
+            const nombre = document.getElementById('nombre').value;
+            const edad = document.getElementById('edad').value;
+            const genero = document.getElementById('genero').value;
+            const especialista = document.getElementById('especialista').value;
+            const celular = document.getElementById('celular').value;
+            const email = document.getElementById('email').value;
+
+            // Generar código de anulación
+            const codigoAnulacion = generarCodigoAnulacion();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Enviando...';
+
+            try {
+                // Enviar correo al servidor local
+                const response = await fetch('http://localhost:5000/enviar_cita', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        rut: rut,
+                        nombre: nombre,
+                        edad: edad,
+                        genero: genero,
+                        especialista: especialista,
+                        celular: celular,
+                        email: email,
+                        dia: selectedDay,
+                        hora: selectedTime,
+                        codigo: codigoAnulacion
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    // Generar código de anulación
+                    const codigoAnulacion = generarCodigoAnulacion();
+
+                    // Guardar la cita agendada
+                    citasAgendadas.push({
+                        day: selectedDay,
+                        time: selectedTime,
+                        rut: rut,
+                        nombre: nombre,
+                        edad: edad,
+                        genero: genero,
+                        especialista: especialista,
+                        celular: celular,
+                        email: email,
+                        codigo: codigoAnulacion,
+                        fecha: new Date().toLocaleString()
+                    });
+                    localStorage.setItem('citasAgendadas', JSON.stringify(citasAgendadas));
+
+                    showSuccess();
+                    // Limpiar formulario
+                    document.getElementById('appointmentForm').reset();
+                    document.getElementById('selectedInfo').style.display = 'none';
+                    selectedDay = null;
+                    selectedTime = null;
+
+                    // Actualizar horarios disponibles
+                    crearSlotsDeHorario();
+                } else {
+                    showError(data.message || 'Error al enviar el correo');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                // Intentar método alternativo
+                enviarCorreoAlternativo(rut, nombre, edad, genero, especialista, celular, email, codigoAnulacion);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Aceptar';
+            }
+        });
+
+        function enviarCorreoAlternativo(rut, nombre, edad, genero, especialista, celular, email, codigo) {
+            // Limpiar RUT si viene formateado
+            rut = limpiarRUT(rut);
+
+            // Guardar la cita agendada aunque falle el envío de correo
+            citasAgendadas.push({
+                day: selectedDay,
+                time: selectedTime,
+                rut: rut,
+                nombre: nombre,
+                edad: edad,
+                genero: genero,
+                especialista: especialista,
+                celular: celular,
+                email: email,
+                codigo: codigo,
+                fecha: new Date().toLocaleString()
+            });
+            localStorage.setItem('citasAgendadas', JSON.stringify(citasAgendadas));
+
+            // Método alternativo: crear un mailto link y mostrar mensaje
+            const asunto = 'Confirmación de Cita Médica';
+            const cuerpo = `Nombre: ${nombre}
+RUT: ${rut}
+Edad: ${edad}
+Género: ${genero}
+Celular: ${celular}
+Email: ${email}
+Día: ${selectedDay}
+Hora: ${selectedTime}
+
+Gracias por agendar tu cita.`;
+
+            const mailtoLink = `mailto:${email}?cc=rhamuy@gmail.com&subject=${encodeURIComponent(asunto)}&body=${encodeURIComponent(cuerpo)}`;
+
+            showSuccess();
+            // Limpiar formulario
+            document.getElementById('appointmentForm').reset();
+            document.getElementById('selectedInfo').style.display = 'none';
+            selectedDay = null;
+            selectedTime = null;
+
+            // Actualizar horarios disponibles
+            crearSlotsDeHorario();
+        }
+
+        function showSuccess() {
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('errorMessage').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 5000);
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = '✗ ' + message;
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('errorMessage').style.display = 'none';
+            }, 5000);
+        }
+
+        // Manejar anulación de cita
+        // Variable para guardar el código actual durante el flujo de anulación
+        let codigoActualAnulacion = null;
+
+        // Evento para buscar la reserva (primer paso)
+        document.getElementById('cancelForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const codigo = document.getElementById('codigoAnulacion').value.trim().toUpperCase();
+
+            try {
+                // Buscar la reserva en el servidor
+                const response = await fetch('http://localhost:5000/buscar_reserva', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        codigo: codigo
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    document.getElementById('errorMessageCancel').textContent = '✗ ' + (data.message || 'Código de anulación inválido');
+                    document.getElementById('errorMessageCancel').style.display = 'block';
+                    document.getElementById('successMessageCancel').style.display = 'none';
+                    return;
+                }
+
+                // Reserva encontrada - mostrar datos en modal
+                const reserva = data.reserva;
+                codigoActualAnulacion = codigo;
+
+                // Llenar los datos del cliente en el modal
+                const datosHTML = `
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <tr style="background-color: #e3f2fd;">
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e; width: 40%;">Nombre:</td>
+                            <td style="padding: 10px;">${reserva.nombre}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">RUT:</td>
+                            <td style="padding: 10px;">${reserva.rut}</td>
+                        </tr>
+                        <tr style="background-color: #e3f2fd;">
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Email:</td>
+                            <td style="padding: 10px;">${reserva.email}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Celular:</td>
+                            <td style="padding: 10px;">+56${reserva.celular}</td>
+                        </tr>
+                        <tr style="background-color: #e3f2fd;">
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Especialista:</td>
+                            <td style="padding: 10px;">${reserva.especialista}</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Día de cita:</td>
+                            <td style="padding: 10px;">${reserva.dia}</td>
+                        </tr>
+                        <tr style="background-color: #e3f2fd;">
+                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Hora de cita:</td>
+                            <td style="padding: 10px;">${reserva.hora}</td>
+                        </tr>
+                    </table>
+                `;
+
+                document.getElementById('datosClienteAnulacion').innerHTML = datosHTML;
+
+                // Mostrar el modal
+                document.getElementById('modalAnulacion').style.display = 'flex';
+                document.getElementById('errorMessageCancel').style.display = 'none';
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorMessageCancel').textContent = '✗ Error al procesar la solicitud';
+                document.getElementById('errorMessageCancel').style.display = 'block';
+                document.getElementById('successMessageCancel').style.display = 'none';
+            }
+        });
+
+        // Botón para cancelar el modal (sin anular la cita)
+        document.getElementById('btnCancelarModal').addEventListener('click', function() {
+            document.getElementById('modalAnulacion').style.display = 'none';
+            codigoActualAnulacion = null;
+        });
+
+        // Botón para confirmar la anulación
+        document.getElementById('btnConfirmarAnulacion').addEventListener('click', async function() {
+            if (!codigoActualAnulacion) return;
+
+            try {
+                // Ahora sí, anular la reserva en el servidor
+                const response = await fetch('http://localhost:5000/anular_reserva', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        codigo: codigoActualAnulacion
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    document.getElementById('errorMessageCancel').textContent = '✗ ' + (data.message || 'Error al anular');
+                    document.getElementById('errorMessageCancel').style.display = 'block';
+                    document.getElementById('modalAnulacion').style.display = 'none';
+                    return;
+                }
+
+                // Reserva anulada exitosamente
+                const reserva = data.reserva;
+
+                // Recargar todas las citas desde el servidor para sincronizar perfectamente
+                await cargarCitasDelServidor();
+
+                // Actualizar calendario para liberar la hora
+                crearSlotsDeHorario();
+
+                // Mostrar mensaje de éxito
+                document.getElementById('successMessageCancel').textContent =
+                    `✓ Cita del ${reserva.dia} a las ${reserva.hora} anulada exitosamente. El horario está disponible nuevamente.`;
+                document.getElementById('successMessageCancel').style.display = 'block';
+                document.getElementById('errorMessageCancel').style.display = 'none';
+
+                // Limpiar campo y cerrar modal
+                document.getElementById('codigoAnulacion').value = '';
+                document.getElementById('modalAnulacion').style.display = 'none';
+                codigoActualAnulacion = null;
+
+                setTimeout(() => {
+                    document.getElementById('successMessageCancel').style.display = 'none';
+                }, 5000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('errorMessageCancel').textContent = '✗ Error al procesar la solicitud';
+                document.getElementById('errorMessageCancel').style.display = 'block';
+                document.getElementById('modalAnulacion').style.display = 'none';
+            }
+        });
+
+        // Manejar botones de navegación de semanas
+        document.getElementById('btnSemanaAnterior').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (semanaOffset > 0) {
+                semanaOffset--;
+                actualizarCalendario();
+            }
+        });
+
+        document.getElementById('btnSemanaSiguiente').addEventListener('click', function(e) {
+            e.preventDefault();
+            semanaOffset++;
+            actualizarCalendario();
+        });
+    </script>
+</body>
+</html>
