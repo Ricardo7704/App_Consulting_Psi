@@ -761,8 +761,16 @@
         // Inicializar EmailJS
         emailjs.init('YOUR_PUBLIC_KEY'); // Se configurará sin clave
 
-        // LIMPIAR localStorage al cargar la página para sincronizar con BD
-        localStorage.removeItem('citasAgendadas');
+        // 🔧 DETECTAR URL DEL SERVIDOR DINÁMICAMENTE
+        // En Render usará la URL de Render, en localhost usará localhost
+        const API_BASE_URL = window.location.origin === 'http://localhost:5000' || window.location.hostname === 'localhost'
+            ? 'http://localhost:5000'
+            : window.location.origin;
+
+        console.log('📡 API Base URL:', API_BASE_URL);
+
+        // ❌ NO LIMPIAR localStorage - solo sincronizar con servidor
+        // localStorage.removeItem('citasAgendadas');
 
         // Generar horarios de 09:00 a 18:00
         const hours = [];
@@ -781,7 +789,7 @@
         // Función para cargar citas desde la BD al iniciar
         async function cargarCitasDelServidor() {
             try {
-                const response = await fetch('http://localhost:5000/obtener_citas');
+                const response = await fetch(`${API_BASE_URL}/obtener_citas`);
                 const data = await response.json();
 
                 if (data.success && data.citas) {
@@ -1148,8 +1156,8 @@
             submitBtn.textContent = 'Enviando...';
 
             try {
-                // Enviar correo al servidor local
-                const response = await fetch('http://localhost:5000/enviar_cita', {
+                // Enviar correo al servidor
+                const response = await fetch(`${API_BASE_URL}/enviar_cita`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1286,7 +1294,7 @@ Gracias por agendar tu cita.`;
 
             try {
                 // Buscar la reserva en el servidor
-                const response = await fetch('http://localhost:5000/buscar_reserva', {
+                const response = await fetch(`${API_BASE_URL}/buscar_reserva`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -1369,7 +1377,7 @@ Gracias por agendar tu cita.`;
 
             try {
                 // Ahora sí, anular la reserva en el servidor
-                const response = await fetch('http://localhost:5000/anular_reserva', {
+                const response = await fetch(`${API_BASE_URL}/anular_reserva`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
