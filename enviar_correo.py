@@ -7,6 +7,7 @@ from datetime import datetime
 import os
 from dotenv import load_dotenv
 import threading
+import traceback
 
 # Cargar variables de entorno desde archivo .env
 load_dotenv()
@@ -90,6 +91,7 @@ sg = SendGridAPIClient(SENDGRID_API_KEY)
 def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
     """Envía email usando SendGrid en un thread separado"""
     print(f"\n📧 Intentando enviar email a: {destinatario}")
+    print(f"📧 Remitente: {SENDER_EMAIL}")
     print(f"📧 Usando SendGrid API")
     try:
         print("📧 Creando mensaje...")
@@ -100,14 +102,20 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
             plain_text_content=cuerpo_texto,
             html_content=cuerpo_html
         )
+        print(f"📧 Mensaje creado correctamente")
 
         print("📧 Enviando email con SendGrid...")
         response = sg.send(mensaje)
 
         print(f"✅ Email enviado exitosamente a {destinatario}")
-        print(f"   Status Code: {response.status_code}\n")
+        print(f"   Status Code: {response.status_code}")
+        print(f"   Headers: {response.headers}\n")
     except Exception as e:
-        print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}\n")
+        print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}")
+        print(f"❌ Tipo de error: {type(e).__name__}")
+        print(f"❌ Traceback completo:")
+        print(traceback.format_exc())
+        print()
 
 # Ruta para servir el archivo HTML principal
 @app.route('/')
