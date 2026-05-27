@@ -1,9 +1,8 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -74,53 +73,39 @@ try:
 except Exception as e:
     print(f"⚠️  Advertencia al crear tablas de BD: {e}")
 
-# Configuración de correo desde variables de entorno (SEGURO - NO SE EXPONE EN GITHUB)
+# Configuración de SendGrid (SEGURO - NO SE EXPONE EN GITHUB)
 SENDER_EMAIL = os.getenv('GMAIL_EMAIL')
-SENDER_PASSWORD = os.getenv('GMAIL_PASSWORD')
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
 
 # Validar que las variables estén configuradas
-if not SENDER_EMAIL or not SENDER_PASSWORD:
-    print("\n" + "=" * 60)
-    print("❌ ERROR: Falta configuración")
-    print("=" * 60)
-    print("\nDebes crear un archivo .env con:\n")
-    print("GMAIL_EMAIL=tu_email@gmail.com")
-    print("GMAIL_PASSWORD=xxxx xxxx xxxx xxxx")
-    print("\n" + "=" * 60 + "\n")
-    raise ValueError("Las variables GMAIL_EMAIL y GMAIL_PASSWORD no están configuradas")
+if not SENDER_EMAIL:
+    raise ValueError("Variable GMAIL_EMAIL no está configurada")
+if not SENDGRID_API_KEY:
+    raise ValueError("Variable SENDGRID_API_KEY no está configurada")
+
+# Inicializar cliente de SendGrid
+sg = SendGridAPIClient(SENDGRID_API_KEY)
 
 # Función para enviar email en un thread separado (asincrónico)
 def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
-    """Envía email en un thread separado para no bloquear la respuesta"""
+    """Envía email usando SendGrid en un thread separado"""
     print(f"\n📧 Intentando enviar email a: {destinatario}")
-    print(f"📧 Usando cuenta: {SENDER_EMAIL}")
+    print(f"📧 Usando SendGrid API")
     try:
         print("📧 Creando mensaje...")
-        mensaje = MIMEMultipart('alternative')
-        mensaje['Subject'] = asunto
-        mensaje['From'] = SENDER_EMAIL
-        mensaje['To'] = destinatario
+        mensaje = Mail(
+            from_email=SENDER_EMAIL,
+            to_emails=destinatario,
+            subject=asunto,
+            plain_text_content=cuerpo_texto,
+            html_content=cuerpo_html
+        )
 
-        parte_texto = MIMEText(cuerpo_texto, 'plain')
-        parte_html = MIMEText(cuerpo_html, 'html')
+        print("📧 Enviando email con SendGrid...")
+        response = sg.send(mensaje)
 
-        mensaje.attach(parte_texto)
-        mensaje.attach(parte_html)
-
-        print("📧 Conectando a SMTP...")
-        servidor = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
-        servidor.starttls()
-        print("📧 Iniciando sesión...")
-        servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
-        print("📧 Enviando email...")
-        servidor.sendmail(SENDER_EMAIL, destinatario, mensaje.as_string())
-        print("📧 Cerrando conexión...")
-        servidor.quit()
-
-        print(f"✅ Email enviado exitosamente a {destinatario}\n")
-    except smtplib.SMTPAuthenticationError as e:
-        print(f"❌ ERROR DE AUTENTICACIÓN: {str(e)}")
-        print(f"   Verifica que la contraseña de aplicación sea correcta\n")
+        print(f"✅ Email enviado exitosamente a {destinatario}")
+        print(f"   Status Code: {response.status_code}\n")
     except Exception as e:
         print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}\n")
 
