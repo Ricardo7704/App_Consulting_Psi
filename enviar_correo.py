@@ -160,13 +160,7 @@ def enviar_cita():
         db.session.add(nueva_reserva)
         db.session.commit()
 
-        # Crear mensaje de correo
-        mensaje = MIMEMultipart('alternative')
-        mensaje['Subject'] = 'Confirmación de Cita Médica - Consultas Psicológicas'
-        mensaje['From'] = SENDER_EMAIL
-        mensaje['To'] = email_paciente
-
-        # Crear cuerpo en HTML
+        # Preparar cuerpo del email en HTML
         cuerpo_html = f"""
         <html>
             <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
@@ -267,13 +261,6 @@ def enviar_cita():
 
         Fecha de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
         """
-
-        # Adjuntar ambas versiones
-        parte_texto = MIMEText(cuerpo_texto, 'plain')
-        parte_html = MIMEText(cuerpo_html, 'html')
-
-        mensaje.attach(parte_texto)
-        mensaje.attach(parte_html)
 
         # Enviar correos en background (sin bloquear la respuesta)
         # Email al paciente
