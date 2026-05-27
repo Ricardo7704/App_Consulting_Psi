@@ -618,7 +618,6 @@
         <div class="tabs">
             <button class="tab-button active" onclick="cambiarTab('agendar')">📅 Agendar Cita</button>
             <button class="tab-button" onclick="cambiarTab('anular')">❌ Anular Cita</button>
-            <button class="tab-button" onclick="cambiarTab('privacidad')">🔐 Privacidad</button>
         </div>
 
         <div class="form-content">
@@ -708,14 +707,14 @@
                     Cita seleccionada: <span id="selectedDate"></span> a las <span id="selectedTime"></span>
                 </div>
 
-                <!-- Checkbox de aceptación de privacidad -->
-                <div class="form-group" style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0;">
-                    <label style="display: flex; align-items: flex-start; margin-bottom: 0; cursor: pointer;">
-                        <input type="checkbox" id="acceptPrivacy" name="acceptPrivacy" required style="margin-top: 3px; margin-right: 10px; cursor: pointer;">
-                        <a href="#" onclick="cambiarTab('privacidad'); return false;" style="font-size: 13px; color: #66bb6a; text-decoration: underline; cursor: pointer; flex: 1;">
-                            Acepto la Política de Privacidad y autorizo el tratamiento de mis datos personales según la Ley 19.628
-                        </a>
-                    </label>
+                <!-- Checkbox oculto de aceptación de privacidad -->
+                <input type="checkbox" id="acceptPrivacy" name="acceptPrivacy" required style="display: none;">
+
+                <!-- Enlace visible a Política de Privacidad -->
+                <div class="form-group" style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0; text-align: center;">
+                    <a href="#" onclick="document.getElementById('modalPrivacidad').style.display='flex'; return false;" style="font-size: 13px; color: #66bb6a; text-decoration: underline; cursor: pointer;">
+                        Acepto la Política de Privacidad y autorizo el tratamiento de mis datos personales según la Ley 19.628
+                    </a>
                 </div>
 
                 <button type="submit" class="submit-btn" id="submitBtn">Aceptar</button>
@@ -769,88 +768,51 @@
                 </div>
             </div>
 
-            <!-- TAB 3: PRIVACIDAD -->
-            <div id="tab-privacidad" class="tab-content">
-                <div class="form-content" style="padding: 20px 0;">
+            <!-- MODAL DE PRIVACIDAD (Se abre desde el enlace en el formulario) -->
+            <div id="modalPrivacidad" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; align-items: center; justify-content: center;">
+                <div style="background: white; padding: 30px; border-radius: 8px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h3 style="color: #1a237e; margin: 0;">Política de Privacidad</h3>
+                        <button onclick="document.getElementById('modalPrivacidad').style.display='none'" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #999;">✕</button>
+                    </div>
+
                     <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
                         <p style="color: #0d47a1; margin: 0; font-size: 14px;">
                             <strong>ℹ️ Información importante:</strong><br>
-                            Esta es nuestra política de privacidad conforme a la <strong>Ley Nº 19.628 sobre Protección de la Vida Privada</strong> de Chile.
+                            Política de privacidad conforme a la <strong>Ley Nº 19.628 sobre Protección de la Vida Privada</strong> de Chile.
                         </p>
                     </div>
 
-                    <div style="max-height: 500px; overflow-y: auto; padding: 20px; background: #f9f9f9; border-radius: 4px; font-size: 13px; line-height: 1.6;">
-                        <h3 style="color: #1a237e; margin-top: 0;">POLÍTICA DE PRIVACIDAD Y PROTECCIÓN DE DATOS PERSONALES</h3>
+                    <div style="font-size: 13px; line-height: 1.6;">
+                        <h4 style="color: #1a237e;">RESPONSABLE DE LOS DATOS</h4>
+                        <p><strong>Responsable:</strong> Consultas Psicológicas<br><strong>Email:</strong> [contacto@consultas-psicologicas.cl]</p>
 
-                        <p><strong>Última actualización:</strong> Mayo 2026</p>
+                        <h4 style="color: #1a237e;">¿QUÉ DATOS RECOPILAMOS?</h4>
+                        <p>RUT, Nombre, Edad, Género, Teléfono, Email, Especialista, Fecha y Hora de cita.</p>
 
-                        <h4 style="color: #1a237e; margin-top: 20px;">1. RESPONSABLE DE LOS DATOS</h4>
-                        <p>
-                            <strong>Responsable de Datos:</strong> Consultas Psicológicas<br>
-                            <strong>Email:</strong> [contacto@consultas-psicologicas.cl]
+                        <h4 style="color: #1a237e;">¿PARA QUÉ USAMOS SUS DATOS?</h4>
+                        <p>Únicamente para: Agendar citas, enviar confirmaciones, permitir anulaciones y cumplir obligaciones legales.</p>
+
+                        <h4 style="color: #1a237e;">SEGURIDAD</h4>
+                        <p>🔒 Encriptación HTTPS • 🔒 Base de datos segura • 🔒 Acceso restringido • 🔒 Backups regulares</p>
+
+                        <h4 style="color: #1a237e;">DERECHOS (ARCO)</h4>
+                        <p>Usted tiene derecho a: <strong>Acceso, Rectificación, Cancelación u Oposición</strong> de sus datos. Para ejercer estos derechos envíe un email a [contacto@consultas-psicologicas.cl] con asunto "SOLICITUD ARCO".</p>
+
+                        <h4 style="color: #1a237e;">RETENCIÓN DE DATOS</h4>
+                        <p>Sus datos se mantienen el tiempo necesario para gestionar su cita (típicamente 5 años).</p>
+
+                        <h4 style="color: #1a237e;">COMPARTIR CON TERCEROS</h4>
+                        <p>Sus datos NO serán compartidos sin consentimiento, excepto con personal médico necesario.</p>
+
+                        <p style="background: #c8e6c9; padding: 10px; border-radius: 4px; color: #1b5e20; margin-top: 20px;">
+                            <strong>AL AGENDAR UNA CITA USTED ACEPTA:</strong><br>
+                            ✅ Haber leído esta Política • ✅ Entender el uso de sus datos • ✅ Dar consentimiento informado
                         </p>
 
-                        <h4 style="color: #1a237e; margin-top: 15px;">2. ¿QUÉ DATOS RECOPILAMOS?</h4>
-                        <p>Recopilamos los siguientes datos personales cuando usted agenda una cita:</p>
-                        <ul>
-                            <li>RUT (Rol Único Tributario)</li>
-                            <li>Nombre completo</li>
-                            <li>Edad y Género</li>
-                            <li>Número de teléfono/celular</li>
-                            <li>Correo electrónico</li>
-                            <li>Especialista seleccionado</li>
-                            <li>Fecha y hora de la cita</li>
-                        </ul>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">3. ¿PARA QUÉ USAMOS SUS DATOS?</h4>
-                        <p>Sus datos se utilizan ÚNICAMENTE para:</p>
-                        <ul>
-                            <li>✅ Agendar y gestionar su cita médica/psicológica</li>
-                            <li>✅ Enviar confirmación por correo electrónico</li>
-                            <li>✅ Permitir la anulación de citas</li>
-                            <li>✅ Cumplir obligaciones legales</li>
-                        </ul>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">4. SEGURIDAD DE DATOS</h4>
-                        <p>Implementamos medidas de seguridad:</p>
-                        <ul>
-                            <li>🔒 Encriptación HTTPS en tránsito</li>
-                            <li>🔒 Base de datos segura en servidor protegido</li>
-                            <li>🔒 Acceso restringido a personal autorizado</li>
-                            <li>🔒 Copias de seguridad regulares</li>
-                        </ul>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">5. DERECHOS DEL USUARIO (DERECHOS ARCO)</h4>
-                        <p>Conforme a la Ley 19.628, usted tiene derecho a:</p>
-                        <ul>
-                            <li><strong>Acceso (A):</strong> Solicitar acceso a sus datos</li>
-                            <li><strong>Rectificación (R):</strong> Corregir datos inexactos</li>
-                            <li><strong>Cancelación (C):</strong> Solicitar eliminación de sus datos</li>
-                            <li><strong>Oposición (O):</strong> Oponerse al tratamiento de datos</li>
-                        </ul>
-                        <p><strong>Para ejercer estos derechos:</strong> Envíe un email a [contacto@consultas-psicologicas.cl] con asunto "SOLICITUD ARCO"</p>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">6. RETENCIÓN DE DATOS</h4>
-                        <p>Sus datos se mantienen mientras sea necesario para gestionar su cita y cumplir obligaciones legales (típicamente 5 años).</p>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">7. COMPARTIR CON TERCEROS</h4>
-                        <p>Sus datos NO serán compartidos con terceros sin su consentimiento, excepto con personal médico necesario para la consulta.</p>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">8. CAMBIOS A ESTA POLÍTICA</h4>
-                        <p>Nos reservamos el derecho de actualizar esta política. Los cambios significativos serán comunicados por email.</p>
-
-                        <h4 style="color: #1a237e; margin-top: 15px;">RECONOCIMIENTO Y ACEPTACIÓN</h4>
-                        <p style="background: #c8e6c9; padding: 10px; border-radius: 4px; color: #1b5e20;">
-                            <strong>AL AGENDAR UNA CITA, USTED RECONOCE Y ACEPTA:</strong><br>
-                            ✅ Haber leído esta Política de Privacidad<br>
-                            ✅ Comprender cómo se usan sus datos<br>
-                            ✅ Dar su consentimiento informado<br>
-                            ✅ Autorizar comunicaciones por correo electrónico
-                        </p>
-
-                        <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
-                            Para descargar la política completa, <a href="POLITICA_PRIVACIDAD.md" style="color: #66bb6a; text-decoration: underline;">haga click aquí</a>
-                        </p>
+                        <button onclick="document.getElementById('modalPrivacidad').style.display='none'; document.getElementById('acceptPrivacy').checked=true;" style="width: 100%; padding: 12px; background: #66bb6a; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; margin-top: 20px;">
+                            Acepto y Cierro
+                        </button>
                     </div>
                 </div>
             </div>
