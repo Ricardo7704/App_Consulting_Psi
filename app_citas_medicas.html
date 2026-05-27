@@ -44,6 +44,7 @@
             display: flex;
             background: #f5f5f5;
             border-bottom: 2px solid #ddd;
+            overflow-x: auto;
         }
 
         .tab-button {
@@ -57,6 +58,8 @@
             font-size: 14px;
             transition: all 0.3s;
             border-bottom: 3px solid transparent;
+            white-space: nowrap;
+            min-width: 120px;
         }
 
         .tab-button.active {
@@ -615,6 +618,7 @@
         <div class="tabs">
             <button class="tab-button active" onclick="cambiarTab('agendar')">📅 Agendar Cita</button>
             <button class="tab-button" onclick="cambiarTab('anular')">❌ Anular Cita</button>
+            <button class="tab-button" onclick="cambiarTab('privacidad')">🔐 Privacidad</button>
         </div>
 
         <div class="form-content">
@@ -704,6 +708,16 @@
                     Cita seleccionada: <span id="selectedDate"></span> a las <span id="selectedTime"></span>
                 </div>
 
+                <!-- Checkbox de aceptación de privacidad -->
+                <div class="form-group" style="background: #f5f5f5; padding: 15px; border-radius: 4px; margin: 20px 0;">
+                    <label style="display: flex; align-items: flex-start; margin-bottom: 0; cursor: pointer;">
+                        <input type="checkbox" id="acceptPrivacy" name="acceptPrivacy" required style="margin-top: 3px; margin-right: 10px; cursor: pointer;">
+                        <span style="font-size: 13px; color: #333;">
+                            Acepto la <a href="#tab-privacidad" style="color: #66bb6a; text-decoration: underline; cursor: pointer;">Política de Privacidad</a> y autorizo el tratamiento de mis datos personales según la Ley 19.628
+                        </span>
+                    </label>
+                </div>
+
                 <button type="submit" class="submit-btn" id="submitBtn">Aceptar</button>
             </form>
             </div>
@@ -751,6 +765,92 @@
                     <div style="display: flex; gap: 10px;">
                         <button id="btnCancelarModal" class="submit-btn" style="flex: 1; background: #ccc; color: #333;">Cancelar</button>
                         <button id="btnConfirmarAnulacion" class="submit-btn" style="flex: 1; background: #d32f2f; color: white;">Confirmar Anulación</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: PRIVACIDAD -->
+            <div id="tab-privacidad" class="tab-content">
+                <div class="form-content" style="padding: 20px 0;">
+                    <div style="background: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                        <p style="color: #0d47a1; margin: 0; font-size: 14px;">
+                            <strong>ℹ️ Información importante:</strong><br>
+                            Esta es nuestra política de privacidad conforme a la <strong>Ley Nº 19.628 sobre Protección de la Vida Privada</strong> de Chile.
+                        </p>
+                    </div>
+
+                    <div style="max-height: 500px; overflow-y: auto; padding: 20px; background: #f9f9f9; border-radius: 4px; font-size: 13px; line-height: 1.6;">
+                        <h3 style="color: #1a237e; margin-top: 0;">POLÍTICA DE PRIVACIDAD Y PROTECCIÓN DE DATOS PERSONALES</h3>
+
+                        <p><strong>Última actualización:</strong> Mayo 2026</p>
+
+                        <h4 style="color: #1a237e; margin-top: 20px;">1. RESPONSABLE DE LOS DATOS</h4>
+                        <p>
+                            <strong>Responsable de Datos:</strong> Consultas Psicológicas<br>
+                            <strong>Email:</strong> rhamuy@gmail.com
+                        </p>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">2. ¿QUÉ DATOS RECOPILAMOS?</h4>
+                        <p>Recopilamos los siguientes datos personales cuando usted agenda una cita:</p>
+                        <ul>
+                            <li>RUT (Rol Único Tributario)</li>
+                            <li>Nombre completo</li>
+                            <li>Edad y Género</li>
+                            <li>Número de teléfono/celular</li>
+                            <li>Correo electrónico</li>
+                            <li>Especialista seleccionado</li>
+                            <li>Fecha y hora de la cita</li>
+                        </ul>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">3. ¿PARA QUÉ USAMOS SUS DATOS?</h4>
+                        <p>Sus datos se utilizan ÚNICAMENTE para:</p>
+                        <ul>
+                            <li>✅ Agendar y gestionar su cita médica/psicológica</li>
+                            <li>✅ Enviar confirmación por correo electrónico</li>
+                            <li>✅ Permitir la anulación de citas</li>
+                            <li>✅ Cumplir obligaciones legales</li>
+                        </ul>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">4. SEGURIDAD DE DATOS</h4>
+                        <p>Implementamos medidas de seguridad:</p>
+                        <ul>
+                            <li>🔒 Encriptación HTTPS en tránsito</li>
+                            <li>🔒 Base de datos segura en servidor protegido</li>
+                            <li>🔒 Acceso restringido a personal autorizado</li>
+                            <li>🔒 Copias de seguridad regulares</li>
+                        </ul>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">5. DERECHOS DEL USUARIO (DERECHOS ARCO)</h4>
+                        <p>Conforme a la Ley 19.628, usted tiene derecho a:</p>
+                        <ul>
+                            <li><strong>Acceso (A):</strong> Solicitar acceso a sus datos</li>
+                            <li><strong>Rectificación (R):</strong> Corregir datos inexactos</li>
+                            <li><strong>Cancelación (C):</strong> Solicitar eliminación de sus datos</li>
+                            <li><strong>Oposición (O):</strong> Oponerse al tratamiento de datos</li>
+                        </ul>
+                        <p><strong>Para ejercer estos derechos:</strong> Envíe un email a rhamuy@gmail.com con asunto "SOLICITUD ARCO"</p>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">6. RETENCIÓN DE DATOS</h4>
+                        <p>Sus datos se mantienen mientras sea necesario para gestionar su cita y cumplir obligaciones legales (típicamente 5 años).</p>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">7. COMPARTIR CON TERCEROS</h4>
+                        <p>Sus datos NO serán compartidos con terceros sin su consentimiento, excepto con personal médico necesario para la consulta.</p>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">8. CAMBIOS A ESTA POLÍTICA</h4>
+                        <p>Nos reservamos el derecho de actualizar esta política. Los cambios significativos serán comunicados por email.</p>
+
+                        <h4 style="color: #1a237e; margin-top: 15px;">RECONOCIMIENTO Y ACEPTACIÓN</h4>
+                        <p style="background: #c8e6c9; padding: 10px; border-radius: 4px; color: #1b5e20;">
+                            <strong>AL AGENDAR UNA CITA, USTED RECONOCE Y ACEPTA:</strong><br>
+                            ✅ Haber leído esta Política de Privacidad<br>
+                            ✅ Comprender cómo se usan sus datos<br>
+                            ✅ Dar su consentimiento informado<br>
+                            ✅ Autorizar comunicaciones por correo electrónico
+                        </p>
+
+                        <p style="text-align: center; color: #999; font-size: 12px; margin-top: 20px;">
+                            Para descargar la política completa, <a href="POLITICA_PRIVACIDAD.md" style="color: #66bb6a; text-decoration: underline;">haga click aquí</a>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -1129,6 +1229,13 @@
             // Validar que se haya seleccionado una cita
             if (!selectedDay || !selectedTime) {
                 showError('Por favor selecciona un horario');
+                return;
+            }
+
+            // Validar que haya aceptado la política de privacidad
+            const acceptPrivacy = document.getElementById('acceptPrivacy').checked;
+            if (!acceptPrivacy) {
+                showError('Debes aceptar la Política de Privacidad para continuar');
                 return;
             }
 

@@ -16,14 +16,22 @@ CORS(app)
 
 # Crear carpeta instance si no existe (para la BD)
 instance_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'instance')
-if not os.path.exists(instance_path):
-    os.makedirs(instance_path)
+try:
+    if not os.path.exists(instance_path):
+        os.makedirs(instance_path, exist_ok=True)
+except Exception as e:
+    print(f"⚠️  Advertencia al crear carpeta instance: {e}")
 
 # Configurar SQLite con ruta absoluta
 db_path = os.path.join(instance_path, 'reservas.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
+
+try:
+    db = SQLAlchemy(app)
+except Exception as e:
+    print(f"❌ Error al inicializar la base de datos: {e}")
+    raise
 
 # Modelo de base de datos para reservas
 class Reserva(db.Model):
@@ -59,8 +67,11 @@ class Reserva(db.Model):
         }
 
 # Crear tablas
-with app.app_context():
-    db.create_all()
+try:
+    with app.app_context():
+        db.create_all()
+except Exception as e:
+    print(f"⚠️  Advertencia al crear tablas de BD: {e}")
 
 # Configuración de correo desde variables de entorno (SEGURO - NO SE EXPONE EN GITHUB)
 SENDER_EMAIL = os.getenv('GMAIL_EMAIL')
@@ -372,7 +383,7 @@ if __name__ == '__main__':
     print("=" * 60)
     print(f"\n📧 Email: {SENDER_EMAIL}")
     print("🔐 Contraseña: [Protegida en .env]")
-    print("💾 Base de datos: reservas.db")
+    print(f"💾 Base de datos: {db_path}")
     print("\n* Running on http://localhost:5000")
     print("Press CTRL+C to quit\n")
-    app.run(debug=True, host='localhost', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5000)
