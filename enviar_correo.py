@@ -108,7 +108,8 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
         mensaje.attach(parte_html)
 
         print("📧 Conectando a SMTP...")
-        servidor = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10)
+        servidor = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
+        servidor.starttls()
         print("📧 Iniciando sesión...")
         servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
         print("📧 Enviando email...")
