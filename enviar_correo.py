@@ -92,7 +92,10 @@ if not SENDER_EMAIL or not SENDER_PASSWORD:
 # Función para enviar email en un thread separado (asincrónico)
 def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
     """Envía email en un thread separado para no bloquear la respuesta"""
+    print(f"\n📧 Intentando enviar email a: {destinatario}")
+    print(f"📧 Usando cuenta: {SENDER_EMAIL}")
     try:
+        print("📧 Creando mensaje...")
         mensaje = MIMEMultipart('alternative')
         mensaje['Subject'] = asunto
         mensaje['From'] = SENDER_EMAIL
@@ -104,14 +107,21 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
         mensaje.attach(parte_texto)
         mensaje.attach(parte_html)
 
+        print("📧 Conectando a SMTP...")
         servidor = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10)
+        print("📧 Iniciando sesión...")
         servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
+        print("📧 Enviando email...")
         servidor.sendmail(SENDER_EMAIL, destinatario, mensaje.as_string())
+        print("📧 Cerrando conexión...")
         servidor.quit()
 
-        print(f"✅ Email enviado a {destinatario}")
+        print(f"✅ Email enviado exitosamente a {destinatario}\n")
+    except smtplib.SMTPAuthenticationError as e:
+        print(f"❌ ERROR DE AUTENTICACIÓN: {str(e)}")
+        print(f"   Verifica que la contraseña de aplicación sea correcta\n")
     except Exception as e:
-        print(f"❌ Error al enviar email a {destinatario}: {str(e)}")
+        print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}\n")
 
 # Ruta para servir el archivo HTML principal
 @app.route('/')
