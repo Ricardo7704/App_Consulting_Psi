@@ -7,6 +7,7 @@ from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import os
 from dotenv import load_dotenv
+import threading
 
 # Cargar variables de entorno desde archivo .env
 load_dotenv()
@@ -87,6 +88,30 @@ if not SENDER_EMAIL or not SENDER_PASSWORD:
     print("GMAIL_PASSWORD=xxxx xxxx xxxx xxxx")
     print("\n" + "=" * 60 + "\n")
     raise ValueError("Las variables GMAIL_EMAIL y GMAIL_PASSWORD no están configuradas")
+
+# Función para enviar email en un thread separado (asincrónico)
+def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
+    """Envía email en un thread separado para no bloquear la respuesta"""
+    try:
+        mensaje = MIMEMultipart('alternative')
+        mensaje['Subject'] = asunto
+        mensaje['From'] = SENDER_EMAIL
+        mensaje['To'] = destinatario
+
+        parte_texto = MIMEText(cuerpo_texto, 'plain')
+        parte_html = MIMEText(cuerpo_html, 'html')
+
+        mensaje.attach(parte_texto)
+        mensaje.attach(parte_html)
+
+        servidor = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10)
+        servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
+        servidor.sendmail(SENDER_EMAIL, destinatario, mensaje.as_string())
+        servidor.quit()
+
+        print(f"✅ Email enviado a {destinatario}")
+    except Exception as e:
+        print(f"❌ Error al enviar email a {destinatario}: {str(e)}")
 
 # Ruta para servir el archivo HTML principal
 @app.route('/')
@@ -254,50 +279,41 @@ def enviar_cita():
         mensaje.attach(parte_texto)
         mensaje.attach(parte_html)
 
-        # Enviar correo al paciente
-        try:
-            servidor = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
-            servidor.sendmail(SENDER_EMAIL, email_paciente, mensaje.as_string())
-            servidor.quit()
+        # Enviar correos en background (sin bloquear la respuesta)
+        # Email al paciente
+        thread_paciente = threading.Thread(
+            target=enviar_email_async,
+            args=(email_paciente, 'Confirmación de Cita Médica - Consultas Psicológicas', cuerpo_html, cuerpo_texto)
+        )
+        thread_paciente.daemon = True
+        thread_paciente.start()
 
-            # Enviar copia al administrador
-            mensaje_admin = MIMEMultipart('alternative')
-            mensaje_admin['Subject'] = f'Nueva Cita Agendada - {nombre}'
-            mensaje_admin['From'] = SENDER_EMAIL
-            mensaje_admin['To'] = SENDER_EMAIL
+        # Email al administrador
+        cuerpo_admin = f"""
+        Nueva cita agendada en el sistema:
 
-            cuerpo_admin = f"""
-            Nueva cita agendada en el sistema:
+        Nombre: {nombre}
+        Email: {email_paciente}
+        RUT: {rut}
+        Edad: {edad}
+        Género: {genero}
+        Especialista: {especialista}
+        Celular: +56{celular}
+        Día: {dia}
+        Hora: {hora}
+        Código de Anulación: {codigo_anulacion}
 
-            Nombre: {nombre}
-            Email: {email_paciente}
-            RUT: {rut}
-            Edad: {edad}
-            Género: {genero}
-            Especialista: {especialista}
-            Celular: +56{celular}
-            Día: {dia}
-            Hora: {hora}
-            Código de Anulación: {codigo_anulacion}
+        Fecha/Hora de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
+        """
 
-            Fecha/Hora de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
-            """
+        thread_admin = threading.Thread(
+            target=enviar_email_async,
+            args=(SENDER_EMAIL, f'Nueva Cita Agendada - {nombre}', f'<pre>{cuerpo_admin}</pre>', cuerpo_admin)
+        )
+        thread_admin.daemon = True
+        thread_admin.start()
 
-            parte_admin = MIMEText(cuerpo_admin, 'plain')
-            mensaje_admin.attach(parte_admin)
-
-            servidor = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
-            servidor.sendmail(SENDER_EMAIL, SENDER_EMAIL, mensaje_admin.as_string())
-            servidor.quit()
-
-            return jsonify({'success': True, 'message': 'Correo enviado exitosamente'})
-
-        except smtplib.SMTPAuthenticationError:
-            return jsonify({'success': False, 'message': 'Error de autenticación. Verifica la contraseña de aplicación de Gmail.'}), 401
-        except Exception as e:
-            return jsonify({'success': False, 'message': f'Error al enviar correo: {str(e)}'}), 500
+        return jsonify({'success': True, 'message': 'Cita agendada exitosamente. Se enviarán los correos de confirmación.'})
 
     except Exception as e:
         return jsonify({'success': False, 'message': f'Error: {str(e)}'}), 400
