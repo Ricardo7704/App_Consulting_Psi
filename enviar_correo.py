@@ -1,10 +1,9 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
-from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Content
-import requests
-import json
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -77,91 +76,64 @@ try:
 except Exception as e:
     print(f"⚠️  Advertencia al crear tablas de BD: {e}")
 
-# Configuración de SendGrid (SEGURO - NO SE EXPONE EN GITHUB)
+# Configuración de Gmail (SEGURO - NO SE EXPONE EN GITHUB)
 SENDER_EMAIL = os.getenv('GMAIL_EMAIL', '').strip()
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY', '').strip()
+SENDER_PASSWORD = os.getenv('GMAIL_PASSWORD', '').strip()
 
 # Validar que las variables estén configuradas
 if not SENDER_EMAIL:
     raise ValueError("Variable GMAIL_EMAIL no está configurada")
-if not SENDGRID_API_KEY:
-    raise ValueError("Variable SENDGRID_API_KEY no está configurada")
-
-# Inicializar cliente de SendGrid
-sg = SendGridAPIClient(SENDGRID_API_KEY)
+if not SENDER_PASSWORD:
+    raise ValueError("Variable GMAIL_PASSWORD no está configurada")
 
 # Función para enviar email en un thread separado (asincrónico)
 def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
-    """Envía email usando SendGrid en un thread separado"""
+    """Envía email usando Gmail SMTP en un thread separado"""
     print(f"\n📧 Intentando enviar email a: {destinatario}")
     print(f"📧 Remitente: {SENDER_EMAIL}")
     print(f"📧 Asunto: {asunto}")
-    print(f"📧 Usando SendGrid API")
+    print(f"📧 Usando Gmail SMTP")
 
     try:
-        print("📧 Paso 1: Preparando datos del email...")
+        print("📧 Paso 1: Creando mensaje...")
+        # Crear mensaje MIME
+        mensaje = MIMEMultipart('alternative')
+        mensaje['From'] = SENDER_EMAIL
+        mensaje['To'] = destinatario
+        mensaje['Subject'] = asunto
 
-        # Construir el payload para SendGrid API REST
-        payload = {
-            "personalizations": [
-                {
-                    "to": [{"email": destinatario}],
-                    "subject": asunto
-                }
-            ],
-            "from": {"email": SENDER_EMAIL},
-            "content": [
-                {
-                    "type": "text/plain",
-                    "value": cuerpo_texto
-                },
-                {
-                    "type": "text/html",
-                    "value": cuerpo_html
-                }
-            ]
-        }
+        # Agregar contenido en texto plano
+        print("📧 Paso 2: Agregando contenido de texto...")
+        parte_texto = MIMEText(cuerpo_texto, 'plain')
+        mensaje.attach(parte_texto)
 
-        print("📧 Paso 2: Preparando headers...")
-        headers = {
-            "Authorization": f"Bearer {SENDGRID_API_KEY}",
-            "Content-Type": "application/json"
-        }
+        # Agregar contenido en HTML
+        print("📧 Paso 3: Agregando contenido HTML...")
+        parte_html = MIMEText(cuerpo_html, 'html')
+        mensaje.attach(parte_html)
 
-        print("📧 Paso 3: Enviando request a SendGrid API REST...")
-        print(f"   - URL: https://api.sendgrid.com/v3/mail/send")
-        print(f"   - Destinatario: {destinatario}")
-        print(f"   - Timeout: 10 segundos")
-        print(f"   - Header Authorization: Bearer {SENDGRID_API_KEY[:10]}...")
-        print(f"   - Content-Type: application/json")
+        print("📧 Paso 4: Conectando a Gmail SMTP...")
+        # Conectar a Gmail SMTP
+        servidor = smtplib.SMTP('smtp.gmail.com', 587)
+        servidor.starttls()
 
-        # Usar requests directamente con timeout
-        response = requests.post(
-            "https://api.sendgrid.com/v3/mail/send",
-            headers=headers,
-            json=payload,
-            timeout=10
-        )
+        print("📧 Paso 5: Autenticando...")
+        servidor.login(SENDER_EMAIL, SENDER_PASSWORD)
 
-        print(f"📧 Paso 4: Respuesta recibida de SendGrid")
-        print(f"   Status Code: {response.status_code}")
+        print("📧 Paso 6: Enviando email...")
+        servidor.send_message(mensaje)
 
-        if response.status_code == 202:
-            print(f"✅ Email enviado exitosamente a {destinatario}\n")
-        else:
-            print(f"⚠️ Respuesta de SendGrid:")
-            print(f"   {response.text}\n")
+        servidor.quit()
 
-    except requests.exceptions.Timeout:
-        print(f"⏱️ TIMEOUT al enviar email a {destinatario}: Timeout después de 10 segundos")
-        print(traceback.format_exc())
-        print()
+        print(f"✅ Email enviado exitosamente a {destinatario}\n")
 
-    except requests.exceptions.RequestException as req_error:
-        print(f"❌ ERROR de requests al enviar email a {destinatario}: {str(req_error)}")
-        print(f"❌ Tipo: {type(req_error).__name__}")
-        print(traceback.format_exc())
-        print()
+    except smtplib.SMTPAuthenticationError as auth_error:
+        print(f"❌ ERROR de autenticación al enviar email a {destinatario}")
+        print(f"   Email: {SENDER_EMAIL}")
+        print(f"   Error: {str(auth_error)}\n")
+
+    except smtplib.SMTPException as smtp_error:
+        print(f"❌ ERROR SMTP al enviar email a {destinatario}: {str(smtp_error)}\n")
 
     except Exception as e:
         print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}")
