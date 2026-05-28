@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 import threading
 import traceback
+import signal
 
 # Cargar variables de entorno desde archivo .env
 load_dotenv()
@@ -119,12 +120,21 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
         print(f"📧 Longitud API Key: {len(SENDGRID_API_KEY) if SENDGRID_API_KEY else 0}")
 
         print("📧 Paso 6: Enviando mensaje a SendGrid...")
-        response = sg.send(mensaje)
 
-        print(f"📧 Paso 7: RESPUESTA RECIBIDA de SendGrid")
-        print(f"✅ Email enviado exitosamente a {destinatario}")
-        print(f"   Status Code: {response.status_code if response else 'No response'}")
-        print(f"   Response type: {type(response)}\n")
+        # Intentar enviar con SendGrid
+        try:
+            print(f"   - Llamando a sg.send()...")
+            response = sg.send(mensaje)
+            print(f"   - SendGrid respondió")
+
+            print(f"📧 Paso 7: RESPUESTA RECIBIDA de SendGrid")
+            print(f"✅ Email enviado exitosamente a {destinatario}")
+            print(f"   Status Code: {response.status_code if response else 'No response'}\n")
+
+        except Exception as send_error:
+            print(f"❌ Error en sg.send(): {str(send_error)}")
+            print(f"   Tipo: {type(send_error).__name__}")
+            raise
 
     except TimeoutError as te:
         print(f"⏱️ TIMEOUT al enviar email a {destinatario}: {str(te)}")
