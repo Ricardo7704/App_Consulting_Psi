@@ -94,8 +94,9 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
     print(f"📧 Remitente: {SENDER_EMAIL}")
     print(f"📧 Asunto: {asunto}")
     print(f"📧 Usando SendGrid API")
+
     try:
-        print("📧 Creando mensaje...")
+        print("📧 Paso 1: Creando mensaje...")
         # Crear mensaje con contenido texto plano
         mensaje = Mail(
             from_email=SENDER_EMAIL,
@@ -104,28 +105,35 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
         )
 
         # Agregar contenido en formato texto plano
-        print("📧 Agregando contenido de texto...")
+        print("📧 Paso 2: Agregando contenido de texto...")
         mensaje.add_content(cuerpo_texto, 'text/plain')
 
         # Agregar contenido en formato HTML
-        print("📧 Agregando contenido HTML...")
+        print("📧 Paso 3: Agregando contenido HTML...")
         mensaje.add_content(cuerpo_html, 'text/html')
 
-        print(f"📧 Mensaje creado correctamente")
-        print(f"📧 Objeto Mail: {type(mensaje)}")
+        print(f"📧 Paso 4: Mensaje creado correctamente")
 
-        print("📧 Enviando email con SendGrid...")
-        print(f"📧 Usando cliente SendGrid: {type(sg)}")
+        print("📧 Paso 5: ANTES de enviar email con SendGrid...")
+        print(f"📧 API Key configurada: {'Sí' if SENDGRID_API_KEY else 'No'}")
+        print(f"📧 Longitud API Key: {len(SENDGRID_API_KEY) if SENDGRID_API_KEY else 0}")
+
+        print("📧 Paso 6: Enviando mensaje a SendGrid...")
         response = sg.send(mensaje)
 
+        print(f"📧 Paso 7: RESPUESTA RECIBIDA de SendGrid")
         print(f"✅ Email enviado exitosamente a {destinatario}")
-        print(f"   Status Code: {response.status_code}")
+        print(f"   Status Code: {response.status_code if response else 'No response'}")
         print(f"   Response type: {type(response)}\n")
+
+    except TimeoutError as te:
+        print(f"⏱️ TIMEOUT al enviar email a {destinatario}: {str(te)}")
+        print(traceback.format_exc())
+        print()
 
     except Exception as e:
         print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}")
         print(f"❌ Tipo de error: {type(e).__name__}")
-        print(f"❌ Tipo de SendGrid Client: {type(sg)}")
         print(f"❌ Traceback completo:")
         print(traceback.format_exc())
         print()
