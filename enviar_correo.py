@@ -3,6 +3,8 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail, Content
+import requests
+import json
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -97,54 +99,67 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
     print(f"📧 Usando SendGrid API")
 
     try:
-        print("📧 Paso 1: Creando mensaje...")
-        # Crear mensaje con contenido texto plano
-        mensaje = Mail(
-            from_email=SENDER_EMAIL,
-            to_emails=destinatario,
-            subject=asunto
+        print("📧 Paso 1: Preparando datos del email...")
+
+        # Construir el payload para SendGrid API REST
+        payload = {
+            "personalizations": [
+                {
+                    "to": [{"email": destinatario}],
+                    "subject": asunto
+                }
+            ],
+            "from": {"email": SENDER_EMAIL},
+            "content": [
+                {
+                    "type": "text/plain",
+                    "value": cuerpo_texto
+                },
+                {
+                    "type": "text/html",
+                    "value": cuerpo_html
+                }
+            ]
+        }
+
+        print("📧 Paso 2: Preparando headers...")
+        headers = {
+            "Authorization": f"Bearer {SENDGRID_API_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        print("📧 Paso 3: Enviando request a SendGrid API REST...")
+        print(f"   - URL: https://api.sendgrid.com/v3/mail/send")
+        print(f"   - Destinatario: {destinatario}")
+        print(f"   - Timeout: 10 segundos")
+
+        # Usar requests directamente con timeout
+        response = requests.post(
+            "https://api.sendgrid.com/v3/mail/send",
+            headers=headers,
+            json=payload,
+            timeout=10
         )
 
-        # Agregar contenido en formato texto plano
-        print("📧 Paso 2: Agregando contenido de texto...")
-        mensaje.add_content(cuerpo_texto, 'text/plain')
+        print(f"📧 Paso 4: Respuesta recibida")
+        print(f"✅ Email enviado exitosamente a {destinatario}")
+        print(f"   Status Code: {response.status_code}")
+        print(f"   Response: {response.text if response.text else 'OK'}\n")
 
-        # Agregar contenido en formato HTML
-        print("📧 Paso 3: Agregando contenido HTML...")
-        mensaje.add_content(cuerpo_html, 'text/html')
+    except requests.exceptions.Timeout:
+        print(f"⏱️ TIMEOUT al enviar email a {destinatario}: Timeout después de 10 segundos")
+        print(traceback.format_exc())
+        print()
 
-        print(f"📧 Paso 4: Mensaje creado correctamente")
-
-        print("📧 Paso 5: ANTES de enviar email con SendGrid...")
-        print(f"📧 API Key configurada: {'Sí' if SENDGRID_API_KEY else 'No'}")
-        print(f"📧 Longitud API Key: {len(SENDGRID_API_KEY) if SENDGRID_API_KEY else 0}")
-
-        print("📧 Paso 6: Enviando mensaje a SendGrid...")
-
-        # Intentar enviar con SendGrid
-        try:
-            print(f"   - Llamando a sg.send()...")
-            response = sg.send(mensaje)
-            print(f"   - SendGrid respondió")
-
-            print(f"📧 Paso 7: RESPUESTA RECIBIDA de SendGrid")
-            print(f"✅ Email enviado exitosamente a {destinatario}")
-            print(f"   Status Code: {response.status_code if response else 'No response'}\n")
-
-        except Exception as send_error:
-            print(f"❌ Error en sg.send(): {str(send_error)}")
-            print(f"   Tipo: {type(send_error).__name__}")
-            raise
-
-    except TimeoutError as te:
-        print(f"⏱️ TIMEOUT al enviar email a {destinatario}: {str(te)}")
+    except requests.exceptions.RequestException as req_error:
+        print(f"❌ ERROR de requests al enviar email a {destinatario}: {str(req_error)}")
+        print(f"❌ Tipo: {type(req_error).__name__}")
         print(traceback.format_exc())
         print()
 
     except Exception as e:
         print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}")
         print(f"❌ Tipo de error: {type(e).__name__}")
-        print(f"❌ Traceback completo:")
         print(traceback.format_exc())
         print()
 
