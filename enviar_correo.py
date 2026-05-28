@@ -132,6 +132,8 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
         print(f"   - URL: https://api.sendgrid.com/v3/mail/send")
         print(f"   - Destinatario: {destinatario}")
         print(f"   - Timeout: 10 segundos")
+        print(f"   - Header Authorization: Bearer {SENDGRID_API_KEY[:10]}...")
+        print(f"   - Content-Type: application/json")
 
         # Usar requests directamente con timeout
         response = requests.post(
@@ -141,10 +143,14 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
             timeout=10
         )
 
-        print(f"📧 Paso 4: Respuesta recibida")
-        print(f"✅ Email enviado exitosamente a {destinatario}")
+        print(f"📧 Paso 4: Respuesta recibida de SendGrid")
         print(f"   Status Code: {response.status_code}")
-        print(f"   Response: {response.text if response.text else 'OK'}\n")
+
+        if response.status_code == 202:
+            print(f"✅ Email enviado exitosamente a {destinatario}\n")
+        else:
+            print(f"⚠️ Respuesta de SendGrid:")
+            print(f"   {response.text}\n")
 
     except requests.exceptions.Timeout:
         print(f"⏱️ TIMEOUT al enviar email a {destinatario}: Timeout después de 10 segundos")
