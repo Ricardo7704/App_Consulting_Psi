@@ -78,8 +78,8 @@ except Exception as e:
     print(f"⚠️  Advertencia al crear tablas de BD: {e}")
 
 # Configuración de SendGrid (SEGURO - NO SE EXPONE EN GITHUB)
-SENDER_EMAIL = os.getenv('GMAIL_EMAIL')
-SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+SENDER_EMAIL = os.getenv('GMAIL_EMAIL', '').strip()
+SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY', '').strip()
 
 # Validar que las variables estén configuradas
 if not SENDER_EMAIL:
