@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail
+from sendgrid.helpers.mail import Mail, Content
 from datetime import datetime
 import os
 from dotenv import load_dotenv
@@ -92,27 +92,40 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
     """Envía email usando SendGrid en un thread separado"""
     print(f"\n📧 Intentando enviar email a: {destinatario}")
     print(f"📧 Remitente: {SENDER_EMAIL}")
+    print(f"📧 Asunto: {asunto}")
     print(f"📧 Usando SendGrid API")
     try:
         print("📧 Creando mensaje...")
+        # Crear mensaje con contenido texto plano
         mensaje = Mail(
             from_email=SENDER_EMAIL,
             to_emails=destinatario,
-            subject=asunto,
-            plain_text_content=cuerpo_texto,
-            html_content=cuerpo_html
+            subject=asunto
         )
+
+        # Agregar contenido en formato texto plano
+        print("📧 Agregando contenido de texto...")
+        mensaje.add_content(cuerpo_texto, 'text/plain')
+
+        # Agregar contenido en formato HTML
+        print("📧 Agregando contenido HTML...")
+        mensaje.add_content(cuerpo_html, 'text/html')
+
         print(f"📧 Mensaje creado correctamente")
+        print(f"📧 Objeto Mail: {type(mensaje)}")
 
         print("📧 Enviando email con SendGrid...")
+        print(f"📧 Usando cliente SendGrid: {type(sg)}")
         response = sg.send(mensaje)
 
         print(f"✅ Email enviado exitosamente a {destinatario}")
         print(f"   Status Code: {response.status_code}")
-        print(f"   Headers: {response.headers}\n")
+        print(f"   Response type: {type(response)}\n")
+
     except Exception as e:
         print(f"❌ ERROR al enviar email a {destinatario}: {str(e)}")
         print(f"❌ Tipo de error: {type(e).__name__}")
+        print(f"❌ Tipo de SendGrid Client: {type(sg)}")
         print(f"❌ Traceback completo:")
         print(traceback.format_exc())
         print()
