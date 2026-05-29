@@ -122,11 +122,12 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
         }
 
         print("📧 Paso 3: Enviando a SendGrid...")
+        print(f"   - Timeout: 30 segundos")
         response = requests.post(
             "https://api.sendgrid.com/v3/mail/send",
             headers=headers,
             json=payload,
-            timeout=10
+            timeout=30
         )
 
         print(f"📧 Paso 4: Respuesta recibida")
@@ -197,81 +198,84 @@ def enviar_cita():
         db.session.add(nueva_reserva)
         db.session.commit()
 
-        # Preparar cuerpo del email en HTML
+        # Preparar cuerpo del email en HTML - Mejorado para evitar spam
         cuerpo_html = f"""
-        <html>
-            <body style="font-family: Arial, sans-serif; background-color: #f5f5f5; padding: 20px;">
-                <div style="max-width: 500px; margin: 0 auto; background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-                    <h2 style="color: #66bb6a; text-align: center;">✓ Cita Agendada Exitosamente</h2>
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
+            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 0;">
+                <!-- Header -->
+                <div style="background-color: #1a237e; padding: 20px; text-align: center;">
+                    <h1 style="margin: 0; color: white; font-size: 24px;">Consultas Psicológicas</h1>
+                    <p style="margin: 5px 0 0 0; color: #e0e0e0; font-size: 14px;">Confirmación de Cita Médica</p>
+                </div>
 
-                    <hr style="border: none; border-top: 2px solid #66bb6a; margin: 20px 0;">
+                <!-- Content -->
+                <div style="padding: 30px;">
+                    <p style="margin: 0 0 20px 0; color: #333; font-size: 16px;">Estimado/a <strong>{nombre}</strong>,</p>
 
-                    <h3 style="color: #1a237e;">Detalles de tu cita:</h3>
-
-                    <table style="width: 100%; border-collapse: collapse;">
-                        <tr style="background-color: #f0f7ee;">
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Nombre:</td>
-                            <td style="padding: 10px;">{nombre}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">RUT:</td>
-                            <td style="padding: 10px;">{rut}</td>
-                        </tr>
-                        <tr style="background-color: #f0f7ee;">
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Edad:</td>
-                            <td style="padding: 10px;">{edad}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Género:</td>
-                            <td style="padding: 10px;">{genero}</td>
-                        </tr>
-                        <tr style="background-color: #f0f7ee;">
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Especialista:</td>
-                            <td style="padding: 10px;">{especialista}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Celular:</td>
-                            <td style="padding: 10px;">+56{celular}</td>
-                        </tr>
-                        <tr style="background-color: #f0f7ee;">
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Email:</td>
-                            <td style="padding: 10px;">{email_paciente}</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Día:</td>
-                            <td style="padding: 10px;">{dia}</td>
-                        </tr>
-                        <tr style="background-color: #f0f7ee;">
-                            <td style="padding: 10px; font-weight: bold; color: #1a237e;">Hora:</td>
-                            <td style="padding: 10px;">{hora}</td>
-                        </tr>
-                    </table>
-
-                    <hr style="border: none; border-top: 2px solid #66bb6a; margin: 20px 0;">
-
-                    <p style="color: #666; font-size: 14px;">
-                        <strong>Fecha de registro:</strong> {datetime.now().strftime('%d/%m/%Y %H:%M')}
+                    <p style="margin: 0 0 20px 0; color: #555; font-size: 14px; line-height: 1.6;">
+                        Su cita ha sido registrada exitosamente en nuestro sistema. A continuación encontrará los detalles de su reserva.
                     </p>
 
-                    <div style="background-color: #e3f2fd; border-left: 4px solid #2196F3; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                        <p style="color: #0d47a1; margin: 0; font-size: 13px;">
-                            <strong>🔐 Código de Anulación:</strong><br>
-                            <span style="font-family: monospace; font-weight: bold; font-size: 16px; color: #1565c0;">{codigo_anulacion}</span><br>
-                            <span style="font-size: 12px; color: #1976d2;">Guarda este código si necesitas anular tu cita más adelante</span>
+                    <!-- Appointment Details -->
+                    <div style="background-color: #f9f9f9; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 5px;">
+                        <h3 style="margin: 0 0 15px 0; color: #1a237e; font-size: 16px;">Detalles de la Cita</h3>
+
+                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; font-weight: bold; width: 40%;">Especialista:</td>
+                                <td style="padding: 8px 0; color: #333;">{especialista}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; font-weight: bold;">Fecha:</td>
+                                <td style="padding: 8px 0; color: #333;">{dia}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; font-weight: bold;">Hora:</td>
+                                <td style="padding: 8px 0; color: #333;">{hora}</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0; color: #666; font-weight: bold;">RUT:</td>
+                                <td style="padding: 8px 0; color: #333;">{rut}</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <!-- Cancellation Code -->
+                    <div style="background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 4px;">
+                        <p style="margin: 0; color: #e65100; font-size: 13px;">
+                            <strong>Código de Anulación:</strong><br>
+                            <span style="font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; color: #bf360c; letter-spacing: 1px;">{codigo_anulacion}</span><br>
+                            <span style="font-size: 12px; color: #f57c00;">Guarde este código si necesita anular su cita</span>
                         </p>
                     </div>
 
-                    <div style="background-color: #c8e6c9; border-left: 4px solid #66bb6a; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                        <p style="color: #1b5e20; margin: 0;">
-                            Tu cita ha sido confirmada exitosamente. Por favor, no olvides asistir a tu consulta.
-                        </p>
-                    </div>
+                    <p style="margin: 20px 0; color: #555; font-size: 14px; line-height: 1.6;">
+                        Si tiene alguna pregunta o necesita modificar su cita, contacte con nosotros mediante la plataforma.
+                    </p>
 
-                    <p style="color: #999; font-size: 12px; text-align: center; margin-top: 20px;">
-                        Este es un correo automático. Por favor, no respondas a este mensaje.
+                    <p style="margin: 20px 0 0 0; color: #555; font-size: 14px;">
+                        Atentamente,<br>
+                        <strong>Equipo de Consultas Psicológicas</strong>
                     </p>
                 </div>
-            </body>
+
+                <!-- Footer -->
+                <div style="background-color: #f5f5f5; border-top: 1px solid #ddd; padding: 20px; text-align: center; font-size: 12px; color: #999;">
+                    <p style="margin: 0 0 10px 0;">
+                        Este es un correo transaccional automático. Por favor, no responda a este mensaje.
+                    </p>
+                    <p style="margin: 0;">
+                        Consultas Psicológicas | Plataforma de Reservas Online
+                    </p>
+                </div>
+            </div>
+        </body>
         </html>
         """
 
@@ -303,7 +307,7 @@ def enviar_cita():
         # Email al paciente
         thread_paciente = threading.Thread(
             target=enviar_email_async,
-            args=(email_paciente, 'Confirmación de Cita Médica - Consultas Psicológicas', cuerpo_html, cuerpo_texto)
+            args=(email_paciente, 'Su cita ha sido confirmada', cuerpo_html, cuerpo_texto)
         )
         thread_paciente.daemon = True
         thread_paciente.start()
