@@ -8,7 +8,9 @@
 
 ## 1. INTRODUCCIÓN
 
-Esta Política de Privacidad describe cómo recopilamos, utilizamos, protegemos y tratamos sus datos personales en cumplimiento con la **Ley Nº 19.628 sobre Protección de la Vida Privada** de la República de Chile.
+Esta Política de Privacidad describe cómo recopilamos, utilizamos, protegemos y tratamos sus datos personales en cumplimiento con la **Ley Nº 21.719 de Protección de Datos Personales** de la República de Chile, que reemplaza a la Ley Nº 19.628 y entra en vigor el 1 de diciembre de 2026.
+
+La Ley 21.719 se alinea con estándares internacionales como el GDPR europeo, implementando principios de legalidad, proporcionalidad, responsabilidad y transparencia en el tratamiento de datos personales.
 
 Nos comprometemos a proteger su privacidad y garantizar que entienda cómo usamos su información personal.
 
@@ -94,7 +96,7 @@ Implementamos las siguientes medidas de seguridad:
 
 ## 8. DERECHOS DEL USUARIO (DERECHOS ARCO)
 
-Conforme a la Ley 19.628, usted tiene derecho a:
+Conforme a la Ley 21.719 de Protección de Datos Personales, usted tiene derecho a:
 
 ### **Acceso (A)**
 Solicitar acceso a todos sus datos personales registrados en nuestros sistemas.
@@ -165,9 +167,11 @@ Nos reservamos el derecho de actualizar esta Política de Privacidad en cualquie
 ### Para presentar reclamos sobre privacidad:
 Puede presentar un reclamo ante:
 
-**Dirección General de Protección de Datos Personales (DGPD)**
+**Agencia de Protección de Datos Personales (creada por Ley 21.719)**
 - Sitio web: www.protecciondatos.gob.cl
 - Email: contacto@protecciondatos.gob.cl
+
+**Nota:** La Agencia de Protección de Datos Personales reemplaza a la Dirección General de Protección de Datos Personales a partir del 1 de diciembre de 2026.
 
 ---
 
