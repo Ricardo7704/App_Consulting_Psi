@@ -16,15 +16,7 @@ Nos comprometemos a proteger su privacidad y garantizar que entienda cómo usamo
 
 ---
 
-## 2. RESPONSABLE DE LOS DATOS
-
-**Responsable de Datos:** Consultas Psicológicas  
-**Email de contacto:** rhamuy@gmail.com  
-**Teléfono:** [Incluir teléfono de contacto]
-
----
-
-## 3. ¿QUÉ DATOS PERSONALES RECOPILAMOS?
+## 2. ¿QUÉ DATOS PERSONALES RECOPILAMOS?
 
 Recopilamos los siguientes datos personales cuando usted agenda una cita:
 
@@ -42,7 +34,7 @@ Recopilamos los siguientes datos personales cuando usted agenda una cita:
 
 ---
 
-## 4. ¿PARA QUÉ USAMOS SUS DATOS?
+## 3. ¿PARA QUÉ USAMOS SUS DATOS?
 
 Sus datos personales se utilizan ÚNICAMENTE para:
 
@@ -60,7 +52,7 @@ Sus datos personales se utilizan ÚNICAMENTE para:
 
 ---
 
-## 5. BASE LEGAL DEL TRATAMIENTO
+## 4. BASE LEGAL DEL TRATAMIENTO
 
 El tratamiento de sus datos se fundamenta en:
 
@@ -70,7 +62,7 @@ El tratamiento de sus datos se fundamenta en:
 
 ---
 
-## 6. COMPARTIR DATOS CON TERCEROS
+## 5. COMPARTIR DATOS CON TERCEROS
 
 Sus datos personales **NO serán compartidos** con terceros sin su consentimiento explícito, EXCEPTO:
 
@@ -80,7 +72,7 @@ Sus datos personales **NO serán compartidos** con terceros sin su consentimient
 
 ---
 
-## 7. SEGURIDAD Y PROTECCIÓN DE DATOS
+## 6. SEGURIDAD Y PROTECCIÓN DE DATOS
 
 Implementamos las siguientes medidas de seguridad:
 
@@ -94,7 +86,7 @@ Implementamos las siguientes medidas de seguridad:
 
 ---
 
-## 8. DERECHOS DEL USUARIO (DERECHOS ARCO)
+## 7. DERECHOS DEL USUARIO (DERECHOS ARCO)
 
 Conforme a la Ley 21.719 de Protección de Datos Personales, usted tiene derecho a:
 
@@ -111,7 +103,7 @@ Solicitar la eliminación de sus datos personales (Derecho al Olvido).
 Oponerse al tratamiento de sus datos para ciertos propósitos.
 
 ### **Cómo ejercer estos derechos:**
-Envíe un email a: **rhamuy@gmail.com** con:
+Envíe un email a: **sopconsulpsico@gmail.com** con:
 - Asunto: "SOLICITUD ARCO"
 - Su nombre completo
 - Tipo de derecho que solicita (A/R/C/O)
@@ -121,7 +113,7 @@ Responderemos dentro de **30 días hábiles** de manera gratuita.
 
 ---
 
-## 9. RETENCIÓN DE DATOS
+## 8. RETENCIÓN DE DATOS
 
 Sus datos se mantienen mientras sea necesario para:
 - ✅ Gestionar su cita actual
@@ -132,7 +124,7 @@ Después de completado el propósito, los datos serán eliminados o anonimizados
 
 ---
 
-## 10. COOKIES Y TECNOLOGÍAS DE SEGUIMIENTO
+## 9. COOKIES Y TECNOLOGÍAS DE SEGUIMIENTO
 
 Esta aplicación utiliza **localStorage** del navegador para:
 - Guardar datos de sesión locales (en su dispositivo)
@@ -143,7 +135,7 @@ Esta aplicación utiliza **localStorage** del navegador para:
 
 ---
 
-## 11. DERECHOS DE MENORES DE EDAD
+## 10. DERECHOS DE MENORES DE EDAD
 
 - Si es menor de 18 años, debe obtener consentimiento de su representante legal
 - No dirigimos nuestros servicios intencionalmente a menores
@@ -151,7 +143,7 @@ Esta aplicación utiliza **localStorage** del navegador para:
 
 ---
 
-## 12. CAMBIOS A ESTA POLÍTICA
+## 11. CAMBIOS A ESTA POLÍTICA
 
 Nos reservamos el derecho de actualizar esta Política de Privacidad en cualquier momento. Los cambios significativos serán comunicados por email.
 
@@ -159,10 +151,10 @@ Nos reservamos el derecho de actualizar esta Política de Privacidad en cualquie
 
 ---
 
-## 13. CONTACTO Y RECLAMACIONES
+## 12. CONTACTO Y RECLAMACIONES
 
 ### Para preguntas sobre esta política:
-📧 **Email:** rhamuy@gmail.com
+📧 **Email:** sopconsulpsico@gmail.com
 
 ### Para presentar reclamos sobre privacidad:
 Puede presentar un reclamo ante:
@@ -175,7 +167,7 @@ Puede presentar un reclamo ante:
 
 ---
 
-## 14. RECONOCIMIENTO Y ACEPTACIÓN
+## 13. RECONOCIMIENTO Y ACEPTACIÓN
 
 **AL AGENDAR UNA CITA, USTED RECONOCE Y ACEPTA:**
 
