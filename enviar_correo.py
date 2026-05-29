@@ -104,7 +104,10 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
             ],
             "from": {
                 "email": SENDER_EMAIL,
-                "name": "Consultas Psicologicas"
+                "name": "Consultas Psicologicas - Sistema de Citas"
+            },
+            "replyTo": {
+                "email": SENDER_EMAIL
             },
             "content": [
                 {
@@ -114,8 +117,10 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
             ],
             "headers": {
                 "X-Priority": "3",
-                "X-Mailer": "Consultas-Psicologicas-System/1.0",
-                "Precedence": "bulk"
+                "X-Mailer": "SendGrid/1.0",
+                "Precedence": "list",
+                "X-Entity-Ref-ID": f"appointment-{codigo_anulacion}",
+                "List-Unsubscribe": "<mailto:noreply@consultas-psicologicas.com>"
             }
         }
 
@@ -203,37 +208,31 @@ def enviar_cita():
         db.session.commit()
 
         # Preparar cuerpo del email en TEXTO PLANO (sin HTML)
-        cuerpo_html = f"""Su cita ha sido confirmada
+        cuerpo_html = f"""Hola {nombre},
 
-Estimado/a {nombre},
+Tu cita ha sido confirmada en nuestro sistema.
 
-Su cita ha sido registrada exitosamente. A continuación encontrará los detalles:
-
-DETALLES DE LA CITA:
--------------------
+DATOS DE TU CITA:
 Especialista: {especialista}
 Fecha: {dia}
 Hora: {hora}
+
+DATOS PERSONALES REGISTRADOS:
+Nombre: {nombre}
 RUT: {rut}
-Edad: {edad}
-Género: {genero}
 Celular: +56{celular}
 Email: {email_paciente}
 
-INFORMACIÓN IMPORTANTE:
-----------------------
-Código de Anulación: {codigo_anulacion}
-Guarde este código si necesita anular su cita
+IMPORTANTE - Código para anular: {codigo_anulacion}
 
-Fecha de Registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
+Si necesitas cancelar o cambiar tu cita, usa el código anterior en nuestro sistema de citas.
 
-Si tiene alguna pregunta o necesita modificar su cita, contacte con nosotros.
+Fecha de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
 
-Atentamente,
-Equipo de Consultas Psicológicas
+Gracias por usar nuestro servicio de citas.
 
----
-Este es un correo automático transaccional. Por favor, no responda a este mensaje.
+Consultas Psicologicas
+Sistema de Reservas Online
 """
 
         # Crear versión en texto plano
@@ -264,7 +263,7 @@ Este es un correo automático transaccional. Por favor, no responda a este mensa
         # Email al paciente
         thread_paciente = threading.Thread(
             target=enviar_email_async,
-            args=(email_paciente, 'Su cita ha sido confirmada', cuerpo_html, cuerpo_texto)
+            args=(email_paciente, f'Cita confirmada - {nombre}', cuerpo_html, cuerpo_texto)
         )
         thread_paciente.daemon = True
         thread_paciente.start()
