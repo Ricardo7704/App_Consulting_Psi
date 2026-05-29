@@ -94,7 +94,7 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
 
     try:
         print("📧 Paso 1: Preparando payload...")
-        # Construir payload para SendGrid
+        # Construir payload para SendGrid - Solo texto plano
         payload = {
             "personalizations": [
                 {
@@ -102,17 +102,21 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
                     "subject": asunto
                 }
             ],
-            "from": {"email": SENDER_EMAIL},
+            "from": {
+                "email": SENDER_EMAIL,
+                "name": "Consultas Psicologicas"
+            },
             "content": [
                 {
                     "type": "text/plain",
-                    "value": cuerpo_texto
-                },
-                {
-                    "type": "text/html",
                     "value": cuerpo_html
                 }
-            ]
+            ],
+            "headers": {
+                "X-Priority": "3",
+                "X-Mailer": "Consultas-Psicologicas-System/1.0",
+                "Precedence": "bulk"
+            }
         }
 
         print("📧 Paso 2: Preparando headers...")
@@ -198,86 +202,39 @@ def enviar_cita():
         db.session.add(nueva_reserva)
         db.session.commit()
 
-        # Preparar cuerpo del email en HTML - Mejorado para evitar spam
-        cuerpo_html = f"""
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        </head>
-        <body style="margin: 0; padding: 0; font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f5f5f5;">
-            <div style="max-width: 600px; margin: 0 auto; background-color: white; padding: 0;">
-                <!-- Header -->
-                <div style="background-color: #1a237e; padding: 20px; text-align: center;">
-                    <h1 style="margin: 0; color: white; font-size: 24px;">Consultas Psicológicas</h1>
-                    <p style="margin: 5px 0 0 0; color: #e0e0e0; font-size: 14px;">Confirmación de Cita Médica</p>
-                </div>
+        # Preparar cuerpo del email en TEXTO PLANO (sin HTML)
+        cuerpo_html = f"""Su cita ha sido confirmada
 
-                <!-- Content -->
-                <div style="padding: 30px;">
-                    <p style="margin: 0 0 20px 0; color: #333; font-size: 16px;">Estimado/a <strong>{nombre}</strong>,</p>
+Estimado/a {nombre},
 
-                    <p style="margin: 0 0 20px 0; color: #555; font-size: 14px; line-height: 1.6;">
-                        Su cita ha sido registrada exitosamente en nuestro sistema. A continuación encontrará los detalles de su reserva.
-                    </p>
+Su cita ha sido registrada exitosamente. A continuación encontrará los detalles:
 
-                    <!-- Appointment Details -->
-                    <div style="background-color: #f9f9f9; border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 5px;">
-                        <h3 style="margin: 0 0 15px 0; color: #1a237e; font-size: 16px;">Detalles de la Cita</h3>
+DETALLES DE LA CITA:
+-------------------
+Especialista: {especialista}
+Fecha: {dia}
+Hora: {hora}
+RUT: {rut}
+Edad: {edad}
+Género: {genero}
+Celular: +56{celular}
+Email: {email_paciente}
 
-                        <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
-                            <tr>
-                                <td style="padding: 8px 0; color: #666; font-weight: bold; width: 40%;">Especialista:</td>
-                                <td style="padding: 8px 0; color: #333;">{especialista}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; color: #666; font-weight: bold;">Fecha:</td>
-                                <td style="padding: 8px 0; color: #333;">{dia}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; color: #666; font-weight: bold;">Hora:</td>
-                                <td style="padding: 8px 0; color: #333;">{hora}</td>
-                            </tr>
-                            <tr>
-                                <td style="padding: 8px 0; color: #666; font-weight: bold;">RUT:</td>
-                                <td style="padding: 8px 0; color: #333;">{rut}</td>
-                            </tr>
-                        </table>
-                    </div>
+INFORMACIÓN IMPORTANTE:
+----------------------
+Código de Anulación: {codigo_anulacion}
+Guarde este código si necesita anular su cita
 
-                    <!-- Cancellation Code -->
-                    <div style="background-color: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin: 20px 0; border-radius: 4px;">
-                        <p style="margin: 0; color: #e65100; font-size: 13px;">
-                            <strong>Código de Anulación:</strong><br>
-                            <span style="font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; color: #bf360c; letter-spacing: 1px;">{codigo_anulacion}</span><br>
-                            <span style="font-size: 12px; color: #f57c00;">Guarde este código si necesita anular su cita</span>
-                        </p>
-                    </div>
+Fecha de Registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}
 
-                    <p style="margin: 20px 0; color: #555; font-size: 14px; line-height: 1.6;">
-                        Si tiene alguna pregunta o necesita modificar su cita, contacte con nosotros mediante la plataforma.
-                    </p>
+Si tiene alguna pregunta o necesita modificar su cita, contacte con nosotros.
 
-                    <p style="margin: 20px 0 0 0; color: #555; font-size: 14px;">
-                        Atentamente,<br>
-                        <strong>Equipo de Consultas Psicológicas</strong>
-                    </p>
-                </div>
+Atentamente,
+Equipo de Consultas Psicológicas
 
-                <!-- Footer -->
-                <div style="background-color: #f5f5f5; border-top: 1px solid #ddd; padding: 20px; text-align: center; font-size: 12px; color: #999;">
-                    <p style="margin: 0 0 10px 0;">
-                        Este es un correo transaccional automático. Por favor, no responda a este mensaje.
-                    </p>
-                    <p style="margin: 0;">
-                        Consultas Psicológicas | Plataforma de Reservas Online
-                    </p>
-                </div>
-            </div>
-        </body>
-        </html>
-        """
+---
+Este es un correo automático transaccional. Por favor, no responda a este mensaje.
+"""
 
         # Crear versión en texto plano
         cuerpo_texto = f"""
