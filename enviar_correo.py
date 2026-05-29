@@ -119,7 +119,6 @@ def enviar_email_async(destinatario, asunto, cuerpo_html, cuerpo_texto):
                 "X-Priority": "3",
                 "X-Mailer": "SendGrid/1.0",
                 "Precedence": "list",
-                "X-Entity-Ref-ID": f"appointment-{codigo_anulacion}",
                 "List-Unsubscribe": "<mailto:noreply@consultas-psicologicas.com>"
             }
         }
